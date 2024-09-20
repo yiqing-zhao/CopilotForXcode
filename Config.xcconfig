@@ -1,0 +1,15 @@
+#include "Version.xcconfig"
+SLASH = / // Otherwise a double slash is treated as a comment, even inside a quoted string
+
+HOST_APP_NAME = GitHub Copilot for Xcode
+BUNDLE_IDENTIFIER_BASE = com.github.CopilotForXcode
+SPARKLE_FEED_URL = https:$(SLASH)$(SLASH)githubcopilotide.z13.web.core.windows.net/appcast.xml
+SPARKLE_PUBLIC_KEY = EGlZbKpzATrZFfzr142PrZbmQr5opzdC8urMU8+dKL0=
+APPLICATION_SUPPORT_FOLDER = com.github.CopilotForXcode
+EXTENSION_BUNDLE_NAME = GitHub Copilot
+EXTENSION_BUNDLE_DISPLAY_NAME = GitHub Copilot
+EXTENSION_SERVICE_NAME = GitHub Copilot for Xcode Extension
+COPILOT_DOCS_URL = https:$(SLASH)$(SLASH)docs.github.com/en/copilot
+COPILOT_FORUM_URL = https:$(SLASH)$(SLASH)github.com/orgs/community/discussions/categories/copilot
+
+// see also target Configs

@@ -83,10 +83,11 @@ public enum CodeHighlighting {
         func isEmptyLine(_ line: String) -> Bool {
             if line.isEmpty { return true }
             guard let regex = try? NSRegularExpression(pattern: #"^\s*\n?$"#) else { return false }
+            let ns = NSString(string: line)
             if regex.firstMatch(
                 in: line,
                 options: [],
-                range: NSMakeRange(0, line.utf16.count)
+                range: NSMakeRange(0, ns.length)
             ) != nil {
                 return true
             }

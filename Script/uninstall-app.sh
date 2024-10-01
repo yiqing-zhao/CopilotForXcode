@@ -26,5 +26,10 @@ rm -f ~/Library/Preferences/com.github.CopilotForXcode.ExtensionService.plist
 rm -f ~/Library/Preferences/dev.com.github.CopilotForXcode.plist
 rm -f ~/Library/Preferences/dev.com.github.CopilotForXcode.ExtensionService.plist
 
-echo 'Finished'
+defaults delete com.github.CopilotForXcode
+defaults delete dev.com.github.CopilotForXcode
+defaults delete VEKTX9H2N7.group.com.github.CopilotForXcode.prefs
+defaults delete VEKTX9H2N7.group.dev.com.github.CopilotForXcode.prefs
+
+echo 'Finished uninstalling Copilot for Xcode'
 

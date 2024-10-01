@@ -102,7 +102,61 @@ public struct AsyncCodeBlock: View {
         return "Hold ⌥ for full suggestion"
     }
 
-    @ScaledMetric var ellipsisPadding: CGFloat = 5
+
+    @ScaledMetric var keyPadding: Double = 3.0
+
+    @ViewBuilder
+    func keyBackground(content: () -> some View) -> some View {
+        content()
+            .padding(.horizontal, keyPadding)
+            .background(
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(foregroundColor, lineWidth: 1)
+                    .foregroundColor(.clear)
+                    .frame(
+                        minWidth: fontHeight,
+                        minHeight: fontHeight,
+                        maxHeight: fontHeight
+                    )
+            )
+    }
+
+    @ViewBuilder
+    var optionKey: some View {
+        keyBackground {
+            Image(systemName: "option")
+                .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .frame(height: font.capHeight)
+        }
+    }
+
+    @ViewBuilder
+    var popoverContent: some View {
+        HStack {
+            if isExpanded {
+                Text("Press")
+                optionKey
+                keyBackground {
+                    Text("tab")
+                        .font(.init(font))
+                }
+                Text("to accept full suggestion")
+            } else {
+                Text("Hold")
+                optionKey
+                Text("for full suggestion")
+            }
+        }
+        .padding(8)
+        .font(.body)
+        .fixedSize()
+    }
+
+    @ScaledMetric var iconPadding: CGFloat = 9.0
+    @ScaledMetric var iconSpacing: CGFloat = 6.0
+    @ScaledMetric var optionPadding: CGFloat = 0.5
 
     @ViewBuilder
     var contentView: some View {
@@ -116,30 +170,39 @@ public struct AsyncCodeBlock: View {
                         .foregroundColor(foregroundTextColor)
                         .lineSpacing(lineSpacing) // This only has effect if a line wraps
                     if lines.count > 1 {
-                        Image(systemName: "ellipsis")
-                            .renderingMode(.template)
-                            .foregroundColor(foregroundTextColor)
-                            .padding(.horizontal, ellipsisPadding)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.gray.opacity(isExpanded ? 0.1 : 0.4))
-                                    .frame(height: fontHeight * 0.75)
-                            )
-                            .popover(isPresented: $isHovering) {
-                                Text(hintText)
-                                    .font(.body)
-                                    .padding(8)
-                                    .fixedSize()
-                            }
-                            .task {
-                                isHovering = !completionHintShown
-                                completionHintShown = true
-                            }
+                        HStack(spacing: iconSpacing) {
+                            Image("CopilotLogo")
+                                .resizable()
+                                .renderingMode(.template)
+                                .scaledToFit()
+                            Image(systemName: "option")
+                                .resizable()
+                                .renderingMode(.template)
+                                .scaledToFit()
+                                .padding(.vertical, optionPadding)
+                        }
+                        .frame(height: lineHeight * 0.7)
+                        .padding(.horizontal, iconPadding)
+                        .background(
+                            Capsule()
+                                .fill(foregroundColor.opacity(isExpanded ? 0.1 : 0.2))
+                                .frame(height: lineHeight)
+                        )
+                        .frame(height: lineHeight) // Moves popover attachment
+                        .popover(isPresented: $isHovering) {
+                            popoverContent
+                        }
+                        .task {
+                            isHovering = !completionHintShown
+                            completionHintShown = true
+                        }
                     }
                 }
-                .background(currentLineBackgroundColor ?? backgroundColor)
+                .frame(height: lineHeight)
+                .background(
+                    HalfCapsule().fill(currentLineBackgroundColor ?? backgroundColor)
+                )
                 .padding(.leading, firstLineIndent)
-                .frame(minHeight: lineHeight)
                 .onHover { hovering in
                     guard hovering != isHovering else { return }
                     withAnimation {

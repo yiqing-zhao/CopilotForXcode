@@ -49,72 +49,41 @@ public struct GitHubCopilotCodeSuggestion: Codable, Equatable {
     public var displayText: String
 }
 
-enum GitHubCopilotRequest {
-    // TODO migrate from setEditorInfo to didConfigurationChange
-    struct SetEditorInfo: GitHubCopilotRequestType {
-        struct Response: Codable {}
-
-        let versionNumber = JSONValue(stringLiteral: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
-        let xcodeVersion = JSONValue(stringLiteral: SystemInfo().xcodeVersion() ?? "")
-
-        var networkProxy: JSONValue? {
-            let host = UserDefaults.shared.value(for: \.gitHubCopilotProxyHost)
-            if host.isEmpty { return nil }
-            var port = UserDefaults.shared.value(for: \.gitHubCopilotProxyPort)
-            if port.isEmpty { port = "80" }
-            let username = UserDefaults.shared.value(for: \.gitHubCopilotProxyUsername)
-            if username.isEmpty {
-                return .hash([
-                    "host": .string(host),
-                    "port": .number(Double(Int(port) ?? 80)),
-                    "rejectUnauthorized": .bool(UserDefaults.shared
-                        .value(for: \.gitHubCopilotUseStrictSSL)),
-                ])
-            } else {
-                return .hash([
-                    "host": .string(host),
-                    "port": .number(Double(Int(port) ?? 80)),
-                    "rejectUnauthorized": .bool(UserDefaults.shared
-                        .value(for: \.gitHubCopilotUseStrictSSL)),
-                    "username": .string(username),
-                    "password": .string(UserDefaults.shared
-                        .value(for: \.gitHubCopilotProxyPassword)),
-
-                ])
-            }
-        }
-
-        var authProvider: JSONValue? {
-            var dict: [String: JSONValue] = [:]
-            let enterpriseURI = UserDefaults.shared.value(for: \.gitHubCopilotEnterpriseURI)
-            if !enterpriseURI.isEmpty {
-                dict["url"] = .string(enterpriseURI)
-            }
-
-            if dict.isEmpty { return nil }
-            return .hash(dict)
-        }
-
-        var request: ClientRequest {
-            var dict: [String: JSONValue] = [
-                "editorInfo": .hash([
-                    "name": "Xcode",
-                    "version": xcodeVersion,
-                ]),
-                "editorPluginInfo": .hash([
-                    "name": "copilot-xcode",
-                    "version": versionNumber,
-                ]),
-            ]
-
-            dict["authProvider"] = authProvider
-            dict["networkProxy"] = networkProxy
-
-            return .custom("setEditorInfo", .hash(dict))
-        }
-
+public func editorConfiguration() -> JSONValue {
+    var proxyAuthorization: String? {
+        let username = UserDefaults.shared.value(for: \.gitHubCopilotProxyUsername)
+        if username.isEmpty { return nil }
+        let password = UserDefaults.shared.value(for: \.gitHubCopilotProxyPassword)
+        return "\(username):\(password)"
     }
 
+    var http: JSONValue? {
+        var d: [String: JSONValue] = [:]
+        let proxy = UserDefaults.shared.value(for: \.gitHubCopilotProxyUrl)
+        if !proxy.isEmpty {
+            d["proxy"] = .string(proxy)
+        }
+        if let proxyAuthorization = proxyAuthorization {
+            d["proxyAuthorization"] = .string(proxyAuthorization)
+        }
+        d["proxyStrictSSL"] = .bool(UserDefaults.shared.value(for: \.gitHubCopilotUseStrictSSL))
+        if d.isEmpty { return nil }
+        return .hash(d)
+    }
+
+    var authProvider: JSONValue? {
+        let enterpriseURI = UserDefaults.shared.value(for: \.gitHubCopilotEnterpriseURI)
+        if enterpriseURI.isEmpty { return nil }
+        return .hash([ "uri": .string(enterpriseURI) ])
+    }
+
+    var d: [String: JSONValue] = [:]
+    if let http { d["http"] = http }
+    if let authProvider { d["github-enterprise"] = authProvider }
+    return .hash(d)
+}
+
+enum GitHubCopilotRequest {
     struct GetVersion: GitHubCopilotRequestType {
         struct Response: Codable {
             var version: String

@@ -172,10 +172,6 @@ public class GitHubCopilotBaseService {
 
                 return InitializeParams(
                     processId: Int(ProcessInfo.processInfo.processIdentifier),
-                    clientInfo: .init(
-                        name: "copilot-xcode",
-                        version: "1.5.0.5206-nightly"
-                    ),
                     locale: nil,
                     rootPath: projectRootURL.path,
                     rootUri: projectRootURL.path,
@@ -188,6 +184,7 @@ public class GitHubCopilotBaseService {
                             "name": "copilot-xcode",
                             "version": versionNumber,
                         ],
+                        "editorConfiguration": editorConfiguration(),
                     ],
                     capabilities: capabilities,
                     trace: .off,
@@ -207,11 +204,13 @@ public class GitHubCopilotBaseService {
         let notifications = NotificationCenter.default
             .notifications(named: .gitHubCopilotShouldRefreshEditorInformation)
         Task { [weak self] in
-            _ = try? await server.sendRequest(GitHubCopilotRequest.SetEditorInfo())
-
             for await _ in notifications {
                 guard self != nil else { return }
-                _ = try? await server.sendRequest(GitHubCopilotRequest.SetEditorInfo())
+                _ = try? await server.sendNotification(
+                    .workspaceDidChangeConfiguration(
+                        .init(settings: editorConfiguration())
+                    )
+                )
             }
         }
     }

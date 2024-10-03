@@ -9,8 +9,7 @@ struct SuggesionSettingProxyView: View {
     
     class Settings: ObservableObject {
         @AppStorage("username") var username: String = ""
-        @AppStorage(\.gitHubCopilotProxyHost) var gitHubCopilotProxyHost
-        @AppStorage(\.gitHubCopilotProxyPort) var gitHubCopilotProxyPort
+        @AppStorage(\.gitHubCopilotProxyUrl) var gitHubCopilotProxyUrl
         @AppStorage(\.gitHubCopilotProxyUsername) var gitHubCopilotProxyUsername
         @AppStorage(\.gitHubCopilotProxyPassword) var gitHubCopilotProxyPassword
         @AppStorage(\.gitHubCopilotUseStrictSSL) var gitHubCopilotUseStrictSSL
@@ -39,13 +38,10 @@ struct SuggesionSettingProxyView: View {
             
             Form {
                 TextField(
-                    text: $settings.gitHubCopilotProxyHost,
-                    prompt: Text("xxx.xxx.xxx.xxx, leave it blank to disable proxy.")
+                    text: $settings.gitHubCopilotProxyUrl,
+                    prompt: Text("http://host:port")
                 ) {
-                    Text("Proxy host")
-                }
-                TextField(text: $settings.gitHubCopilotProxyPort, prompt: Text("80")) {
-                    Text("Proxy port")
+                    Text("Proxy URL")
                 }
                 TextField(text: $settings.gitHubCopilotProxyUsername) {
                     Text("Proxy username")

@@ -8,22 +8,6 @@ Requires Node installed and `npm` available on your system path, e.g.
 sudo ln -s `which npm` /usr/local/bin
 ```
 
-## Local Language Server
-
-To run the language server locally create a `Config.local.xcconfig` file with two config values:
-
-```xcconfig
-LANGUAGE_SERVER_PATH=~/code/copilot-client
-NODE_PATH=/opt/path/to/node
-```
-
-`LANGUAGE_SERVER_PATH` should point to the path where the copilot-client repo is
-checked out and `$(LANGUAGE_SERVER_PATH)/dist/language-server.js` must exist
-(run `npm run build`).
-
-`NODE_PATH` should point to where node is installed. It can be omitted if
-`/usr/bin/env node` will resolves directly.
-
 ## Targets 
 
 ### Copilot for Xcode

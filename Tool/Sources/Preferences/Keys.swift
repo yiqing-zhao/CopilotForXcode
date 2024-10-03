@@ -94,9 +94,22 @@ public struct UserDefaultPreferenceKeys {
     )
 
     // MARK: Completion Hint Shown
+
     public let completionHintShown = PreferenceKey(
         defaultValue: false,
         key: "CompletionHintShown"
+    )
+
+    // MARK: First Time Intro Interface
+
+    public let introLastShownVersion = PreferenceKey(
+        defaultValue: "",
+        key: "IntroLastShownVersion"
+    )
+
+    public let hideIntro = PreferenceKey(
+        defaultValue: false,
+        key: "HideIntro"
     )
 }
 
@@ -512,13 +525,9 @@ public extension UserDefaultPreferenceKeys {
 // MARK: - Feature
 
 public extension UserDefaultPreferenceKeys {
-    
-    var gitHubCopilotProxyHost: PreferenceKey<String> {
-        .init(defaultValue: "", key: "GitHubCopilotProxyHost")
-    }
-    
-    var gitHubCopilotProxyPort: PreferenceKey<String> {
-        .init(defaultValue: "", key: "GitHubCopilotProxyPort")
+
+    var gitHubCopilotProxyUrl: PreferenceKey<String> {
+        .init(defaultValue: "", key: "GitHubCopilotProxyUrl")
     }
     
     var gitHubCopilotUseStrictSSL: PreferenceKey<Bool> {

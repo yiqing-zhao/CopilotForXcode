@@ -1,6 +1,7 @@
 import Client
 import HostApp
 import LaunchAgentManager
+import SharedUIComponents
 import SwiftUI
 import UpdateChecker
 import XPCShared
@@ -21,6 +22,7 @@ struct CopilotForXcodeApp: App {
                     UserDefaults.setupDefaultSettings()
                 }
                 .environment(\.updateChecker, UpdateChecker(hostBundle: Bundle.main))
+                .copilotIntroSheet()
         }
     }
 }

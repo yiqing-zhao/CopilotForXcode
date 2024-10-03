@@ -1,6 +1,6 @@
 # <img align="center" height="70" src="./Docs/AppIcon.png"/> GitHub Copilot For Xcode
 
-<img alt="Demo of GitHub Copilot for Xcode" src="./Docs/demo.gif" width="577" />
+<img alt="Demo of GitHub Copilot for Xcode" src="./Docs/demo.gif" width="800" />
 
 GitHub Copilot for Xcode is macOS application and Xcode extension that enables
 using GitHub Copilot code completions in Xcode.

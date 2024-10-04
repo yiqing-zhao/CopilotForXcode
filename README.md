@@ -2,8 +2,9 @@
 
 <img alt="Demo of GitHub Copilot for Xcode" src="./Docs/demo.gif" width="800" />
 
-GitHub Copilot for Xcode is macOS application and Xcode extension that enables
-using GitHub Copilot code completions in Xcode.
+[GitHub Copilot](https://github.com/features/copilot) is an AI pair programmer
+that helps you write code faster and smarter. Copilot for Xcode is an
+Xcode extension that provides inline coding suggestions as you type.
 
 ## Beta Preview Policy
 
@@ -61,6 +62,16 @@ As per [GitHub's Terms of Service](https://docs.github.com/en/github/site-policy
 
 This project is licensed under the terms of the MIT open source license. Please
 refer to [MIT](./LICENSE.txt) for the full terms.
+
+## Privacy
+
+Your code is yours. We follow responsible practices in accordance with our
+[Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement)
+to ensure that your code snippets will not be used as suggested code for other
+users of GitHub Copilot.
+
+To get the latest security fixes, please use the latest version of the GitHub
+Copilot for Xcode.
 
 ## Support
 

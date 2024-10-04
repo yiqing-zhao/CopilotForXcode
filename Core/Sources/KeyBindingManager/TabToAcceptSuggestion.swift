@@ -121,11 +121,15 @@ final class TabToAcceptSuggestion {
     }
 
     func handleEvent(_ event: CGEvent) -> CGEventManipulation.Result {
-        if Self.shouldAcceptSuggestion(
+        let (accept, reason) = Self.shouldAcceptSuggestion(
             event: event,
             workspacePool: workspacePool,
             xcodeInspector: ThreadSafeAccessToXcodeInspector.shared
-        ) {
+        )
+        if let reason = reason {
+            Logger.service.debug("TabToAcceptSuggestion: \(accept ? "" : "not") accepting due to: \(reason)")
+        }
+        if accept {
             acceptSuggestion()
             return .discarded
         }
@@ -148,20 +152,30 @@ extension TabToAcceptSuggestion {
         event: CGEvent,
         workspacePool: WorkspacePool,
         xcodeInspector: ThreadSafeAccessToXcodeInspectorProtocol
-    ) -> Bool {
+    ) -> (accept: Bool, reason: String?) {
         let keycode = Int(event.getIntegerValueField(.keyboardEventKeycode))
         let tab = 48
-        guard keycode == tab else { return false }
-        guard let fileURL = xcodeInspector.activeDocumentURL else { return false }
-        if event.flags.contains(.maskHelp) { return false }
-        if event.flags.contains(.maskShift) { return false }
-        if event.flags.contains(.maskControl) { return false }
-        if event.flags.contains(.maskCommand) { return false }
-        guard xcodeInspector.hasActiveXcode else { return false }
-        guard xcodeInspector.hasFocusedEditor else { return false }
-        guard let filespace = workspacePool.fetchFilespaceIfExisted(fileURL: fileURL) else { return false }
-        if filespace.presentingSuggestion == nil { return false }
-        return true
+        guard keycode == tab else { return (false, nil) }
+        if event.flags.contains(.maskHelp) { return (false, nil) }
+        if event.flags.contains(.maskShift) { return (false, nil) }
+        if event.flags.contains(.maskControl) { return (false, nil) }
+        if event.flags.contains(.maskCommand) { return (false, nil) }
+        guard xcodeInspector.hasActiveXcode else {
+            return (false, "No active Xcode")
+        }
+        guard xcodeInspector.hasFocusedEditor else {
+            return (false, "No focused editor")
+        }
+        guard let fileURL = xcodeInspector.activeDocumentURL else {
+            return (false, "No active document")
+        }
+        guard let filespace = workspacePool.fetchFilespaceIfExisted(fileURL: fileURL) else {
+            return (false, "No filespace")
+        }
+        if filespace.presentingSuggestion == nil {
+            return (false, "No suggestion")
+        }
+        return (true, nil)
     }
 }
 

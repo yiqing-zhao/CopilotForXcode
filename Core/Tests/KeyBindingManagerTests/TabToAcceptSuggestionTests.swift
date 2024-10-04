@@ -15,12 +15,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertTrue(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: CGEvent(keyboardEventSource: nil, virtualKey: 48, keyDown: true)!,
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (true, nil)
         )
     }
 
@@ -28,17 +28,36 @@ class TabToAcceptSuggestionTests: XCTestCase {
     func test_should_not_accept_without_suggestion() {
         let fileURL = URL(string: "file:///test")!
         let workspacePool = FakeWorkspacePool()
+        workspacePool.setTestFile(fileURL: fileURL, skipSuggestion: true)
         let xcodeInspector = FakeThreadSafeAccessToXcodeInspector(
             activeDocumentURL: fileURL,
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: CGEvent(keyboardEventSource: nil, virtualKey: 48, keyDown: true)!,
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, "No suggestion")
+        )
+    }
+
+    @WorkspaceActor
+    func test_should_not_accept_without_filespace() {
+        let fileURL = URL(string: "file:///test")!
+        let workspacePool = FakeWorkspacePool()
+        let xcodeInspector = FakeThreadSafeAccessToXcodeInspector(
+            activeDocumentURL: fileURL,
+            hasActiveXcode: true,
+            hasFocusedEditor: true
+        )
+        assertEqual(
+            TabToAcceptSuggestion.shouldAcceptSuggestion(
+                event: CGEvent(keyboardEventSource: nil, virtualKey: 48, keyDown: true)!,
+                workspacePool: workspacePool,
+                xcodeInspector: xcodeInspector
+            ), (false, "No filespace")
         )
     }
 
@@ -52,12 +71,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: false
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: CGEvent(keyboardEventSource: nil, virtualKey: 48, keyDown: true)!,
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, "No focused editor")
         )
     }
 
@@ -71,12 +90,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: false,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: createEvent(48),
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, "No active Xcode")
         )
     }
 
@@ -90,12 +109,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: createEvent(48),
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, "No active document")
         )
     }
 
@@ -109,12 +128,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: createEvent(48, flags: .maskShift),
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, nil)
         )
     }
 
@@ -128,12 +147,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: createEvent(48, flags: .maskCommand),
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, nil)
         )
     }
 
@@ -147,12 +166,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: createEvent(48, flags: .maskControl),
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, nil)
         )
     }
 
@@ -166,12 +185,12 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: createEvent(48, flags: .maskHelp),
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, nil)
         )
     }
 
@@ -185,13 +204,22 @@ class TabToAcceptSuggestionTests: XCTestCase {
             hasActiveXcode: true,
             hasFocusedEditor: true
         )
-        XCTAssertFalse(
+        assertEqual(
             TabToAcceptSuggestion.shouldAcceptSuggestion(
                 event: createEvent(50),
                 workspacePool: workspacePool,
                 xcodeInspector: xcodeInspector
-            )
+            ), (false, nil)
         )
+    }
+}
+
+private func assertEqual(
+    _ result: (Bool, String?),
+    _ expected: (Bool, String?)
+) {
+    if result != expected {
+        XCTFail("Expected \(expected), got \(result)")
     }
 }
 
@@ -212,9 +240,10 @@ private class FakeWorkspacePool: WorkspacePool {
     private var filespace: Filespace?
     
     @WorkspaceActor
-    func setTestFile(fileURL: URL) {
+    func setTestFile(fileURL: URL, skipSuggestion: Bool = false) {
         self.fileURL = fileURL
         self.filespace = Filespace(fileURL: fileURL, onSave: {_ in }, onClose: {_ in })
+        if skipSuggestion { return }
         guard let filespace = self.filespace else { return }
         filespace.setSuggestions([.init(id: "id", text: "test", position: .zero, range: .zero)])
     }

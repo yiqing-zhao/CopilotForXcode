@@ -30,20 +30,18 @@ public struct TabContainer: View {
             VStack(spacing: 0) {
                 TabBar(tag: $tag, tabBarItems: tabBarItems)
                     .padding(.bottom, 8)
-
-                Divider()
-
                 ZStack(alignment: .center) {
                     GeneralView(store: store.scope(state: \.general, action: \.general))
                         .tabBarItem(
                             tag: 0,
                             title: "General",
-                            image: "gearshape"
+                            image: "CopilotLogo",
+                            isSystemImage: false
                         )
                     FeatureSettingsView().tabBarItem(
                         tag: 2,
                         title: "Feature",
-                        image: "star.square"
+                        image: "star.circle"
                     )
                 }
                 .environment(\.tabBarTabTag, tag)
@@ -75,7 +73,8 @@ struct TabBar: View {
                     currentTag: $tag,
                     tag: tab.tag,
                     title: tab.title,
-                    image: tab.image
+                    image: tab.image,
+                    isSystemImage: tab.isSystemImage
                 )
             }
         }
@@ -88,18 +87,29 @@ struct TabBarButton: View {
     var tag: Int
     var title: String
     var image: String
+    var isSystemImage: Bool = true
+    
+    private var tabImage: Image {
+        isSystemImage ? Image(systemName: image) : Image(image)
+    }
+
+    private var isSelected: Bool {
+        tag == currentTag
+    }
 
     var body: some View {
         Button(action: {
             self.currentTag = tag
         }) {
             VStack(spacing: 2) {
-                Image(systemName: image)
+                tabImage
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 18)
+                    .frame(width: 24, height: 24)
                 Text(title)
             }
+            .foregroundColor(isSelected ? .blue : .gray)
             .font(.body)
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
@@ -129,6 +139,7 @@ private struct TabBarTabViewWrapper<Content: View>: View {
     var tag: Int
     var title: String
     var image: String
+    var isSystemImage: Bool = true
     var content: () -> Content
 
     var body: some View {
@@ -141,7 +152,7 @@ private struct TabBarTabViewWrapper<Content: View>: View {
         }
         .preference(
             key: TabBarItemPreferenceKey.self,
-            value: [.init(tag: tag, title: title, image: image)]
+            value: [.init(tag: tag, title: title, image: image, isSystemImage: isSystemImage)]
         )
     }
 }
@@ -150,12 +161,14 @@ private extension View {
     func tabBarItem(
         tag: Int,
         title: String,
-        image: String
+        image: String,
+        isSystemImage: Bool = true
     ) -> some View {
         TabBarTabViewWrapper(
             tag: tag,
             title: title,
             image: image,
+            isSystemImage: isSystemImage,
             content: { self }
         )
     }
@@ -166,6 +179,7 @@ private struct TabBarItem: Identifiable, Equatable {
     var tag: Int
     var title: String
     var image: String
+    var isSystemImage: Bool = true
 }
 
 private struct TabBarItemPreferenceKey: PreferenceKey {

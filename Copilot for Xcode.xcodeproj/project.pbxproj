@@ -14,6 +14,10 @@
 		424ACA212CA4697200FA20F2 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 424ACA202CA4697200FA20F2 /* Credits.rtf */; };
 		427C63282C6E868B000E557C /* OpenSettingsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 427C63272C6E868B000E557C /* OpenSettingsCommand.swift */; };
 		42888D512C66B10100DEF835 /* AuthStatusChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42888D502C66B10100DEF835 /* AuthStatusChecker.swift */; };
+		5EC511E32C90CE7400632BAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8189B1D2938973000C9DCDA /* Assets.xcassets */; };
+		5EC511E42C90CE9800632BAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8189B1D2938973000C9DCDA /* Assets.xcassets */; };
+		5EC511E52C90CFD600632BAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C861E6142994F6080056CB02 /* Assets.xcassets */; };
+		5EC511E62C90CFD700632BAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C861E6142994F6080056CB02 /* Assets.xcassets */; };
 		C8009BFF2941C551007AA7E8 /* ToggleRealtimeSuggestionsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8009BFE2941C551007AA7E8 /* ToggleRealtimeSuggestionsCommand.swift */; };
 		C8009C032941C576007AA7E8 /* SyncTextSettingsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8009C022941C576007AA7E8 /* SyncTextSettingsCommand.swift */; };
 		C800DBB1294C624D00B04CAC /* PrefetchSuggestionsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = C800DBB0294C624D00B04CAC /* PrefetchSuggestionsCommand.swift */; };
@@ -651,6 +655,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5EC511E52C90CFD600632BAB /* Assets.xcassets in Resources */,
+				5EC511E32C90CE7400632BAB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -663,6 +669,7 @@
 				C8189B1E2938973000C9DCDA /* Assets.xcassets in Resources */,
 				3ABBEA292C8B9FE100C61D61 /* copilot-language-server in Resources */,
 				3ABBEA2B2C8BA00300C61D61 /* copilot-language-server-arm64 in Resources */,
+				5EC511E62C90CFD700632BAB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -674,6 +681,7 @@
 				C861E6152994F6080056CB02 /* Assets.xcassets in Resources */,
 				3ABBEA2D2C8BA00B00C61D61 /* copilot-language-server in Resources */,
 				C81291D72994FE6900196E12 /* Main.storyboard in Resources */,
+				5EC511E42C90CE9800632BAB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

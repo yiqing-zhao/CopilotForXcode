@@ -1,13 +1,13 @@
 import AppKit
 import Foundation
 import Highlightr
+import Logger
 import XcodeInspector
 
 public class XcodeThemeController {
-    var syncTriggerTask: Task<Void, Error>?
+    var syncTriggerTask: Task<Void, Error>? // to be removed
 
-    public init(syncTriggerTask: Task<Void, Error>? = nil) {
-        self.syncTriggerTask = syncTriggerTask
+    public init() {
     }
 
     public func start() {
@@ -17,9 +17,13 @@ public class XcodeThemeController {
             controller: self
         )
 
-        syncXcodeThemeIfNeeded()
+        syncXcodeThemeIfNeeded(forceRefresh: true)
 
-        syncTriggerTask?.cancel()
+        guard syncTriggerTask == nil else {
+            Logger.service.error("XcodeThemeController.start() invoked multiple times.")
+            return
+        }
+
         syncTriggerTask = Task { [weak self] in
             let notifications = NSWorkspace.shared.notificationCenter
                 .notifications(named: NSWorkspace.didActivateApplicationNotification)
@@ -33,11 +37,19 @@ public class XcodeThemeController {
                 self.syncXcodeThemeIfNeeded()
             }
         }
+
+        Timer.scheduledTimer(
+            withTimeInterval: 60,
+            repeats: true
+        ) { [weak self] _ in
+            guard XcodeInspector.shared.activeApplication?.isXcode == true else { return }
+            self?.syncXcodeThemeIfNeeded()
+        }
     }
 }
 
 extension XcodeThemeController {
-    func syncXcodeThemeIfNeeded() {
+    func syncXcodeThemeIfNeeded(forceRefresh: Bool = false) {
         guard UserDefaults.shared.value(for: \.syncSuggestionHighlightTheme)
             || UserDefaults.shared.value(for: \.syncPromptToCodeHighlightTheme)
             || UserDefaults.shared.value(for: \.syncChatCodeHighlightTheme)
@@ -59,7 +71,8 @@ extension XcodeThemeController {
             syncXcodeThemeIfNeeded(
                 xcodeThemeName: darkThemeName,
                 light: false,
-                in: directories.themeDirectory
+                in: directories.themeDirectory,
+                forceRefresh: forceRefresh
             )
         }
 
@@ -69,7 +82,8 @@ extension XcodeThemeController {
             syncXcodeThemeIfNeeded(
                 xcodeThemeName: lightThemeName,
                 light: true,
-                in: directories.themeDirectory
+                in: directories.themeDirectory,
+                forceRefresh: forceRefresh
             )
         }
     }
@@ -77,15 +91,20 @@ extension XcodeThemeController {
     func syncXcodeThemeIfNeeded(
         xcodeThemeName: String,
         light: Bool,
-        in directoryURL: URL
+        in directoryURL: URL,
+        forceRefresh: Bool = false
     ) {
         let targetName = light ? "highlightjs-light" : "highlightjs-dark"
-        guard let xcodeThemeURL = locateXcodeTheme(named: xcodeThemeName) else { return }
+        guard let xcodeThemeURL = locateXcodeTheme(named: xcodeThemeName) else {
+            Logger.service.error("Xcode theme not found: \(xcodeThemeName)")
+            return
+        }
         let targetThemeURL = directoryURL.appendingPathComponent(targetName)
         let lastSyncTimestamp = UserDefaults.shared
             .value(for: \.lastSyncedHighlightJSThemeCreatedAt)
 
         let shouldSync = {
+            if forceRefresh { return true }
             if light, UserDefaults.shared.value(for: \.lightXcodeTheme) == nil { return true }
             if !light, UserDefaults.shared.value(for: \.darkXcodeTheme) == nil { return true }
             if light, xcodeThemeName != UserDefaults.shared.value(for: \.lightXcodeThemeName) {
@@ -109,6 +128,7 @@ extension XcodeThemeController {
         }()
 
         if shouldSync {
+            Logger.service.info("Syncing Xcode theme: \(xcodeThemeName)")
             do {
                 let theme = try XcodeTheme(fileURL: xcodeThemeURL)
                 let highlightrTheme = theme.asHighlightJSTheme()
@@ -156,7 +176,7 @@ extension XcodeThemeController {
                     }
                 }
             } catch {
-                print(error.localizedDescription)
+                Logger.service.error("Failed to sync Xcode theme \"\(xcodeThemeName)\": \(error)")
             }
         }
     }
@@ -233,6 +253,7 @@ extension XcodeThemeController {
             Bundle.main
                 .object(forInfoDictionaryKey: "APPLICATION_SUPPORT_FOLDER") as! String
         ) else {
+            Logger.service.error("Could not determine support directory for Xcode theme synching")
             return nil
         }
 
@@ -255,6 +276,7 @@ extension XcodeThemeController {
                 )
             }
         } catch {
+            Logger.service.error("Failed to create support directories for Xcode theme synching: \(error)")
             return nil
         }
 

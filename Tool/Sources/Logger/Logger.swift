@@ -11,6 +11,7 @@ public final class Logger {
     private let subsystem: String
     private let category: String
     private let osLog: OSLog
+    private let fileLogger = FileLogger()
 
     public static let service = Logger(category: "Service")
     public static let ui = Logger(category: "UI")
@@ -52,6 +53,7 @@ public final class Logger {
         }
 
         os_log("%{public}@", log: osLog, type: osLogType, message as CVarArg)
+        fileLogger.log(level: level, category: category, message: message)
     }
 
     public func debug(

@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import Preferences
+import SuggestionBasic
 import XcodeInspector
 import Logger
 
@@ -23,6 +24,10 @@ extension AppDelegate {
 
     fileprivate var toggleCompletionsMenuItemIdentifier: NSUserInterfaceItemIdentifier {
         .init("toggleCompletionsMenuItem")
+    }
+
+    fileprivate var toggleIgnoreLanguageMenuItemIdentifier: NSUserInterfaceItemIdentifier {
+        .init("toggleIgnoreLanguageMenuItem")
     }
 
     fileprivate var copilotStatusMenuItemIdentifier: NSUserInterfaceItemIdentifier {
@@ -88,6 +93,13 @@ extension AppDelegate {
         )
         toggleCompletions.identifier = toggleCompletionsMenuItemIdentifier;
 
+        let toggleIgnoreLanguage = NSMenuItem(
+            title: "No Active Document",
+            action: nil,
+            keyEquivalent: ""
+        )
+        toggleIgnoreLanguage.identifier = toggleIgnoreLanguageMenuItemIdentifier;
+
         let copilotStatus = NSMenuItem(
             title: "Copilot Connection: Checking...",
             action: nil,
@@ -111,6 +123,7 @@ extension AppDelegate {
         statusBarMenu.addItem(.separator())
         statusBarMenu.addItem(checkForUpdate)
         statusBarMenu.addItem(toggleCompletions)
+        statusBarMenu.addItem(toggleIgnoreLanguage)
         statusBarMenu.addItem(.separator())
         statusBarMenu.addItem(copilotStatus)
         statusBarMenu.addItem(accessibilityAPIPermission)
@@ -141,6 +154,18 @@ extension AppDelegate: NSMenuDelegate {
                 item.identifier == toggleCompletionsMenuItemIdentifier
             }) {
                 toggleCompletions.title = "\(UserDefaults.shared.value(for: \.realtimeSuggestionToggle) ? "Disable" : "Enable") Completions"
+            }
+
+            if let toggleLanguage = menu.items.first(where: { item in
+                item.identifier == toggleIgnoreLanguageMenuItemIdentifier
+            }) {
+                if let lang = DisabledLanguageList.shared.activeDocumentLanguage {
+                    toggleLanguage.title = "\(DisabledLanguageList.shared.isEnabled(lang) ? "Disable" : "Enable") Completions For \(lang.rawValue)"
+                    toggleLanguage.action = #selector(toggleIgnoreLanguage)
+                } else {
+                    toggleLanguage.title = "No Active Document"
+                    toggleLanguage.action = nil
+                }
             }
 
             if let accessibilityAPIPermission = menu.items.first(where: { item in
@@ -268,6 +293,16 @@ private extension AppDelegate {
                 Logger.service.error("Failed to toggle completions enabled via XPC: \(error)")
                 UserDefaults.shared.set(!initialSetting, for: \.realtimeSuggestionToggle)
             }
+        }
+    }
+
+    @objc func toggleIgnoreLanguage() {
+        guard let lang = DisabledLanguageList.shared.activeDocumentLanguage else { return }
+
+        if DisabledLanguageList.shared.isEnabled(lang) {
+            DisabledLanguageList.shared.disable(lang)
+        } else {
+            DisabledLanguageList.shared.enable(lang)
         }
     }
 

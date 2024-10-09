@@ -17,7 +17,7 @@ public extension UserDefaultPreferenceKeys {
     }
     
     var darkXcodeTheme: PreferenceKey<UserDefaultsStorageBox<XcodeTheme?>> {
-        .init(defaultValue: .init(nil), key: "LightXcodeTheme")
+        .init(defaultValue: .init(nil), key: "DarkXcodeTheme")
     }
 
     var lastSyncedHighlightJSThemeCreatedAt: PreferenceKey<TimeInterval> {

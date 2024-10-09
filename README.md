@@ -39,9 +39,20 @@ As per [GitHub's Terms of Service](https://docs.github.com/en/github/site-policy
      <img alt="Screenshot of background item" src="./Docs/background-item.png" width="370" />
    </p>
 
-1. Two important permissions are required for the application to operate well: `Accessibility` and `Xcode Source Editor Extension`. The first time the application is run these permissions should be requested. You may need to click `Refresh` in the settings if not prompted.
+1. Two permissions are required: `Accessibility` and `Xcode Source Editor Extension`.
+
+   The first time the application is run the `Accessibility` permission should be requested:
+
    <p align="center">
      <img alt="Screenshot of accessibility permission request" src="./Docs/accessibility-permission-request.png" width="529" />
+   </p>
+
+   The `Xcode Source Editor Extension` permission needs to be enabled manually. Click
+   `Extension Permission` from the `Copilot for Xcode` settings to open the
+   System Preferences to the `Extensions` panel. Select `Xcode Source Editor`
+   and enable `GitHub Copilot`:
+
+   <p align="center">
      <img alt="Screenshot of extension permission" src="./Docs/extension-permission.png" width="582" />
    </p>
 
@@ -51,12 +62,25 @@ As per [GitHub's Terms of Service](https://docs.github.com/en/github/site-policy
       <img alt="Screenshot of Xcode Editor GitHub Copilot menu item" src="./Docs/xcode-menu.png" width="648" />
     </p>
 
+    Keyboard shortcuts can be set for all menu items in the `Key Bindings`
+    section of Xcode preferences.
+
 1. To sign into GitHub Copilot, click the `Sign in` button in the settings application. This will open a browser window and copy a code to the clipboard. Paste the code into the GitHub login page and authorize the application.
     <p align="center">
       <img alt="Screenshot of sign-in popup" src="./Docs/device-code.png" width="372" />
     </p>
 
 1. To install updates, click `Check for Updates` from the menu item or in the settings application. After installing a new version, Xcode must be restarted to use the new version correctly. New versions can also be installed from `dmg` files downloaded from the releases page. When installing a new version via `dmg`, the application must be run manually the first time to accept the downloaded from the internet warning.
+
+1. To avoid confusion, we recommend disabling `Predictive code completion` under
+   `Xcode` > `Preferences` > `Text Editing` > `Editing`.
+
+1. Press `tab` to accept the first line of a suggestion, hold `option` to view
+   the full suggestion, and press `option` + `tab` to accept the full suggestion.
+
+   <p align="center">
+     <img alt="Screenshot of welcome screen" src="./Docs/welcome.png" width="672" />
+   </p>
 
 ## License
 

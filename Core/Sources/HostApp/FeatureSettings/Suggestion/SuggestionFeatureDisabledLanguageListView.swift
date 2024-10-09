@@ -87,7 +87,7 @@ struct SuggestionFeatureDisabledLanguageListView: View {
                 if settings.suggestionFeatureDisabledLanguageList.isEmpty {
                     Text("""
                     Empty
-                    Disable the language of a file by right clicking the circular widget.
+                    Disable the language of a file from the Copilot menu in the status bar.
                     """)
                     .multilineTextAlignment(.center)
                     .padding()

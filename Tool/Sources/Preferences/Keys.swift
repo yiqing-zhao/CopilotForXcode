@@ -111,6 +111,11 @@ public struct UserDefaultPreferenceKeys {
         defaultValue: false,
         key: "HideIntro"
     )
+
+    public let extensionPermissionShown = PreferenceKey(
+        defaultValue: false,
+        key: "ExtensionPermissionShown"
+    )
 }
 
 // MARK: - Prompt to Code

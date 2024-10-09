@@ -29,6 +29,7 @@ struct GeneralView: View {
                 Spacer().frame(height: 40)
                 rightsView
                     .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
             }
             .frame(maxWidth: .infinity)
         }
@@ -123,7 +124,8 @@ struct GeneralSettingsView: View {
     @StateObject var settings = Settings()
     @Environment(\.updateChecker) var updateChecker
     @AppStorage(\.realtimeSuggestionToggle) var isCopilotEnabled: Bool
-    @State private var shouldPresentInstructionSheet = false
+    @AppStorage(\.extensionPermissionShown) var extensionPermissionShown: Bool
+    @State private var shouldPresentExtensionPermissionAlert = false
     @State private var shouldPresentTurnoffSheet = false
     
     let store: StoreOf<General>
@@ -151,17 +153,15 @@ struct GeneralSettingsView: View {
                         VStack(alignment: .leading) {
                             let grantedStatus: String = {
                                 guard let granted = store.isAccessibilityPermissionGranted else { return StringConstants.loading }
-                                return granted ? "Granted" : "Not Granted"
+                                return granted ? "Granted" : "Not Granted. Required to run. Click to open System Preferences."
                             }()
-                            Text(StringConstants.accessibilityPermissions)
+                            Text(StringConstants.accessibilityPermission)
                                 .font(.body)
-                            Text("\(StringConstants.status) \(grantedStatus) ⓘ")
+                            Text("\(StringConstants.status) \(grantedStatus)")
                                 .font(.footnote)
                         }
                         Spacer()
-                        
-                        Image(systemName: "control")
-                            .rotationEffect(.degrees(90))
+                        Image(systemName: "chevron.right")
                     }
                 }
                 .foregroundStyle(.primary)
@@ -170,23 +170,19 @@ struct GeneralSettingsView: View {
                 Divider()
                 HStack {
                     VStack(alignment: .leading) {
-                        let grantedStatus: String = {
-                            guard let granted = store.isAccessibilityPermissionGranted else { return StringConstants.loading }
-                            return granted ? "Granted" : "Not Granted"
-                        }()
-                        Text(StringConstants.extensionPermissions)
+                        Text(StringConstants.extensionPermission)
                             .font(.body)
-                        Text("\(StringConstants.status) \(grantedStatus) ⓘ")
-                            .font(.footnote)
-                            .onTapGesture {
-                                shouldPresentInstructionSheet = true
-                            }
+                        Text("""
+                             Check for GitHub Copilot in Xcode's Editor menu. \
+                             Restart Xcode if greyed out.
+                             """)
+                        .font(.footnote)
                     }
                     Spacer()
-                    Link(destination: URL(string: "x-apple.systempreferences:com.apple.ExtensionsPreferences")!) {
-                        Image(systemName: "control")
-                            .rotationEffect(.degrees(90))
-                    }
+                    Image(systemName: "chevron.right")
+                }
+                .onTapGesture {
+                    shouldPresentExtensionPermissionAlert = true
                 }
                 .foregroundStyle(.primary)
                 .padding(.horizontal, 8)
@@ -210,11 +206,17 @@ struct GeneralSettingsView: View {
             }
         }
         .padding(.horizontal, 20)
-        .sheet(isPresented: $shouldPresentInstructionSheet) {
-        } content: {
-            InstructionSheet {
-                shouldPresentInstructionSheet = false
-            }
+        .alert(
+            "Enable Extension Permission",
+            isPresented: $shouldPresentExtensionPermissionAlert
+        ) {
+            Button("Open System Preferences", action: {
+                let url = "x-apple.systempreferences:com.apple.ExtensionsPreferences"
+                NSWorkspace.shared.open(URL(string: url)!)
+            }).keyboardShortcut(.defaultAction)
+            Button("Close", role: .cancel, action: {})
+        } message: {
+            Text("Enable GitHub Copilot under Xcode Source Editor extensions")
         }
         .alert(isPresented: $shouldPresentTurnoffSheet) {
             Alert(
@@ -228,6 +230,11 @@ struct GeneralSettingsView: View {
                     shouldPresentTurnoffSheet = false
                 }
             )
+        }
+        .task {
+            if extensionPermissionShown { return }
+            extensionPermissionShown = true
+            shouldPresentExtensionPermissionAlert = true
         }
     }
 }
@@ -314,8 +321,7 @@ struct CopilotConnectionView: View {
                             .font(.body)
                         Spacer()
                         
-                        Image(systemName: "control")
-                            .rotationEffect(.degrees(90))
+                        Image(systemName: "chevron.right")
                     }
                 }
                 .foregroundStyle(.primary)
@@ -327,7 +333,6 @@ struct CopilotConnectionView: View {
         }
         .padding(.horizontal, 20)
         .onAppear {
-            store.send(.reloadStatus)
             viewModel.checkStatus()
         }
     }
@@ -345,8 +350,7 @@ struct CopilotConnectionView: View {
                         Text(StringConstants.copilotDocumentation)
                             .font(.body)
                         Spacer()
-                        Image(systemName: "control")
-                            .rotationEffect(.degrees(90))
+                        Image(systemName: "chevron.right")
                     }
                 }
                 .foregroundStyle(.primary)
@@ -361,8 +365,7 @@ struct CopilotConnectionView: View {
                         Text(StringConstants.copilotFeedbackForum)
                             .font(.body)
                         Spacer()
-                        Image(systemName: "control")
-                            .rotationEffect(.degrees(90))
+                        Image(systemName: "chevron.right")
                     }
                 }
                 .foregroundStyle(.primary)

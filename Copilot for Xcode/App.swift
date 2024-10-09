@@ -11,8 +11,14 @@ struct VisualEffect: NSViewRepresentable {
   func updateNSView(_ nsView: NSView, context: Context) { }
 }
 
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool { true }
+}
+
 @main
 struct CopilotForXcodeApp: App {
+    @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
+
     var body: some Scene {
         WindowGroup {
             TabContainer()

@@ -16,6 +16,7 @@ struct StringConstants {
     static let turnOnCopilot = "Turn on Copilot for Xcode"
     static let turnOffAlertTitle = "Turn off Copilot for Xcode"
     static let turnOffAlertMessage = "If you turn off Copilot for Xcode, all features will be disabled."
+    static let copilotConnection = "Copilot Connection"
     static let githubAccountStatus = "Github Account Status Permissions"
     static let githubConnection = "Github Connection:"
     static let refreshConnection = "Refresh Connection"

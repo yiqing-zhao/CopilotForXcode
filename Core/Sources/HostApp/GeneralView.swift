@@ -260,7 +260,7 @@ struct CopilotConnectionView: View {
 
     var connection: some View {
         VStack(alignment: .leading) {
-            Text(StringConstants.copilotResources)
+            Text(StringConstants.copilotConnection)
                 .bold()
                 .padding(.leading, 8)
             VStack(spacing: .zero) {

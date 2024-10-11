@@ -25,7 +25,7 @@ struct CopilotIntroItem: View {
             image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundColor(Color(red: 0.0353, green: 0.4118, blue: 0.8549))
+                .foregroundColor(.blue)
                 .scaledToFit()
                 .frame(width: 28, height: 28)
             VStack(alignment: .leading, spacing: 5) {
@@ -39,6 +39,66 @@ struct CopilotIntroItem: View {
     }
 }
 
+struct CopilotIntroContent: View {
+    let hideIntro: Binding<Bool>
+    let continueAction: () -> Void
+
+    var body: some View {
+        VStack {
+            let appImage = if let nsImage = NSImage(named: "AppIcon") {
+                Image(nsImage: nsImage)
+            } else {
+                Image(systemName: "app")
+            }
+            appImage
+                .resizable()
+                .scaledToFit()
+                .frame(width: 64, height: 64)
+                .padding(.bottom, 24)
+            Text("Welcome to Copilot for Xcode!")
+                .font(.title.bold())
+                .padding(.bottom, 38)
+
+            VStack(alignment: .leading, spacing: 20) {
+                CopilotIntroItem(
+                    imageName: "CopilotLogo",
+                    heading: "In-line Code Suggestions",
+                    text: "Copilot's code suggestions and text completion now available in Xcode. Press Tab ⇥ to accept a suggestion."
+                )
+
+                CopilotIntroItem(
+                    systemImage: "option",
+                    heading: "Full Suggestion",
+                    text: "Press Option ⌥ key to display the full suggestion. Only the first line of suggestions are shown inline."
+                )
+
+                CopilotIntroItem(
+                    imageName: "GitHubMark",
+                    heading: "GitHub Context",
+                    text: "Copilot utilizes project context to deliver smarter code suggestions relevant to your unique codebase."
+                )
+            }
+            .padding(.bottom, 64)
+
+            VStack(spacing: 8) {
+                Button(action: continueAction) {
+                    Text("Continue")
+                        .padding(.horizontal, 80)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Toggle("Don't show again", isOn: hideIntro)
+                    .toggleStyle(.checkbox)
+            }
+        }
+        .padding(.horizontal, 56)
+        .padding(.top, 48)
+        .padding(.bottom, 16)
+        .frame(width: 560)
+    }
+}
+
 public struct CopilotIntroSheet<Content: View>: View {
     let content: Content
     let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
@@ -48,58 +108,13 @@ public struct CopilotIntroSheet<Content: View>: View {
 
     public var body: some View {
         content.sheet(isPresented: $isPresented) {
-            VStack {
-                Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 64, height: 64)
-                    .padding(.bottom, 24)
-                Text("Welcome to Copilot for Xcode!")
-                    .font(.title)
-                    .padding(.bottom, 45)
-
-                VStack(alignment: .leading, spacing: 25) {
-                    CopilotIntroItem(
-                        imageName: "CopilotLogo",
-                        heading: "In-line Code Suggestions",
-                        text: "Copilot's code suggestions and text completion now available in Xcode. Just press Tab ⇥ to accept a suggestion."
-                    )
-
-                    CopilotIntroItem(
-                        systemImage: "option",
-                        heading: "Full Suggestion",
-                        text: "Press Option ⌥ key to display the full suggestion. Only the first line of suggestions are shown inline."
-                    )
-
-                    CopilotIntroItem(
-                        imageName: "GitHubMark",
-                        heading: "GitHub Context",
-                        text: "Copilot utilizes GitHub and project context to deliver smarter completions and personalized code suggestions relevant to your unique codebase."
-                    )
-                }
-
-                Spacer()
-
-                VStack(spacing: 8) {
-                    Button(action: { isPresented = false }) {
-                        Text("Continue")
-                            .padding(.horizontal, 80)
-                            .padding(.vertical, 6)
-                    }
-                        .buttonStyle(.borderedProminent)
-
-                    Toggle("Don't show again", isOn: $hideIntro)
-                        .toggleStyle(.checkbox)
-                }
+            CopilotIntroContent(hideIntro: $hideIntro) {
+                isPresented = false
             }
-            .padding(EdgeInsets(top: 50, leading: 50, bottom: 16, trailing: 50))
-            .frame(width: 560, height: 528)
         }
         .task {
-            let neverShown = introLastShownVersion.isEmpty
-            isPresented = neverShown || !hideIntro
-            if isPresented {
-                hideIntro = neverShown ? true : hideIntro // default to hidden on first time
+            if hideIntro == false {
+                isPresented = true
                 introLastShownVersion = appVersion
             }
         }
@@ -110,4 +125,11 @@ public extension View {
     func copilotIntroSheet() -> some View {
         CopilotIntroSheet(content: self)
     }
+}
+
+
+// MARK: - Preview
+@available(macOS 14.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
+    CopilotIntroContent(hideIntro: .constant(false)) { }
 }

@@ -154,6 +154,15 @@ public struct AsyncCodeBlock: View {
         .fixedSize()
     }
 
+    @ViewBuilder
+    func lineBackgroundShape(_ multiLine: Bool) -> some View {
+        let color = currentLineBackgroundColor ?? backgroundColor
+        switch multiLine {
+        case true: HalfCapsule().fill(color)
+        case false: Rectangle().fill(color)
+        }
+    }
+
     @ScaledMetric var iconPadding: CGFloat = 9.0
     @ScaledMetric var iconSpacing: CGFloat = 6.0
     @ScaledMetric var optionPadding: CGFloat = 0.5
@@ -199,9 +208,7 @@ public struct AsyncCodeBlock: View {
                     }
                 }
                 .frame(height: lineHeight)
-                .background(
-                    HalfCapsule().fill(currentLineBackgroundColor ?? backgroundColor)
-                )
+                .background(lineBackgroundShape(lines.count > 1))
                 .padding(.leading, firstLineIndent)
                 .onHover { hovering in
                     guard hovering != isHovering else { return }

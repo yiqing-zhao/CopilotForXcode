@@ -67,7 +67,7 @@ struct AppInfoView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .center, spacing: 16) {
-                Image("copilotIcon")
+                Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
                     .resizable()
                     .frame(width: 110, height: 110)
                 VStack(alignment: .leading) {
@@ -168,21 +168,20 @@ struct GeneralSettingsView: View {
                 .padding(8)
                 
                 Divider()
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(StringConstants.extensionPermission)
-                            .font(.body)
-                        Text("""
-                             Check for GitHub Copilot in Xcode's Editor menu. \
-                             Restart Xcode if greyed out.
-                             """)
-                        .font(.footnote)
+                Link(destination: URL(string: "x-apple.systempreferences:com.apple.ExtensionsPreferences")!) {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(StringConstants.extensionPermission)
+                                .font(.body)
+                            Text("""
+                                 Check for GitHub Copilot in Xcode's Editor menu. \
+                                 Restart Xcode if greyed out.
+                                 """)
+                            .font(.footnote)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
                     }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                }
-                .onTapGesture {
-                    shouldPresentExtensionPermissionAlert = true
                 }
                 .foregroundStyle(.primary)
                 .padding(.horizontal, 8)

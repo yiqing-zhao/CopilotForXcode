@@ -44,7 +44,6 @@ final class ChatPanelWindow: NSWindow {
             .transient,
             .fullScreenPrimary,
             .fullScreenAllowsTiling,
-            .canJoinAllSpaces
         ]
         hasShadow = true
         contentView = NSHostingView(

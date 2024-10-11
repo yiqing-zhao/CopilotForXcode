@@ -227,7 +227,8 @@ public class GitHubCopilotBaseService {
             in: .userDomainMask
         ).first?.appendingPathComponent(
             Bundle.main
-                .object(forInfoDictionaryKey: "APPLICATION_SUPPORT_FOLDER") as! String
+                .object(forInfoDictionaryKey: "APPLICATION_SUPPORT_FOLDER") as? String
+            ?? "com.github.CopilotForXcode"
         ) else {
             throw CancellationError()
         }

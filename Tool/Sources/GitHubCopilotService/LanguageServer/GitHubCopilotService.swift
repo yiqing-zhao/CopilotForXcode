@@ -146,7 +146,11 @@ public class GitHubCopilotBaseService {
             // Set debug port and verbose when running in debug
             let environment: [String: String] = ["HOME": home, "GH_COPILOT_DEBUG_UI_PORT": "8080", "GH_COPILOT_VERBOSE": "true"]
             #else
-            let environment: [String: String] = ["HOME": home]
+            let environment: [String: String] = if UserDefaults.shared.value(for: \.verboseLoggingEnabled) {
+                ["HOME": home, "GH_COPILOT_VERBOSE": "true"]
+            } else {
+                ["HOME": home]
+            }
             #endif
 
             let executionParams = Process.ExecutionParameters(

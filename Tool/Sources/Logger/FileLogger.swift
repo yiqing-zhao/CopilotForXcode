@@ -1,6 +1,15 @@
 import Foundation
 import System
 
+public final class FileLoggingLocation {
+    public static let path = {
+        FilePath(stringLiteral: NSHomeDirectory())
+            .appending("Library")
+            .appending("Logs")
+            .appending("GitHubCopilot")
+    }()
+}
+
 final class FileLogger {
     private let timestampFormat = Date.ISO8601FormatStyle.iso8601
         .year()
@@ -38,10 +47,7 @@ actor FileLoggerImplementation {
     private var logHandle: FileHandle?
 
     public init() {
-        logDir = FilePath(stringLiteral: NSHomeDirectory())
-            .appending("Library")
-            .appending("Logs")
-            .appending("GitHubCopilot")
+        logDir = FileLoggingLocation.path
         logName = "\(logBaseName).\(logExtension)"
         lockFilePath = logDir.appending(logName + ".lock")
     }

@@ -40,8 +40,8 @@ public struct TabContainer: View {
                         )
                     FeatureSettingsView().tabBarItem(
                         tag: 2,
-                        title: "Feature",
-                        image: "star.circle"
+                        title: "Advanced",
+                        image: "gearshape.2.fill"
                     )
                 }
                 .environment(\.tabBarTabTag, tag)
@@ -201,7 +201,7 @@ private extension EnvironmentValues {
 }
 
 struct UpdateCheckerKey: EnvironmentKey {
-    static var defaultValue: UpdateChecker = .init(hostBundle: nil)
+    static var defaultValue: UpdateChecker = .init(hostBundle: Bundle.main)
 }
 
 public extension EnvironmentValues {

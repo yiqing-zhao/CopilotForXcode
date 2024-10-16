@@ -1,4 +1,5 @@
 struct StringConstants {
+    // General Tab Strings
     static let rightsReserved = "GitHub. All rights reserved."
     static let appName = "GitHub Copilot for Xcode"
     static let languageServerVersion = "Language Server Version:"
@@ -28,4 +29,24 @@ struct StringConstants {
     static let copilotDocumentation = "View Copilot Documentation"
     static let copilotFeedbackForum = "View Copilot Feedback Forum"
     static let loading = "Loading.."
+
+//    Feature Tab Settings Strings
+    static let suggestionSettings = "Suggestion Settings"
+    static let requestSuggestionsInRealTime = "Request suggestions in real-time"
+    static let acceptSuggestionsWithTab = "Accept suggestions with Tab"
+    static let disabledLanguageList = "Disabled language list"
+    
+    // Proxy String
+    static let enterprise = "Enterprise"
+    static let leaveBlankPrompt = "Leave it blank if none is available."
+    static let authProviderURL = "Auth provider URL"
+    static let proxy = "Proxy"
+    static let proxyURLPrompt = "http://host:port"
+    static let proxyURL = "Proxy URL"
+    static let proxyUsernamePrompt = "username"
+    static let proxyUsername = "Proxy username"
+    static let proxyPasswordPrompt = "password"
+    static let proxyPassword = "Proxy password"
+    static let proxyStrictSSL = "Proxy strict SSL"
+    static let refreshConfigurations = "Refresh configurations"
 }

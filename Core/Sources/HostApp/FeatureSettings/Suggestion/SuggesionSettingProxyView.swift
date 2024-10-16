@@ -6,7 +6,6 @@ import Toast
 import Client
 
 struct SuggesionSettingProxyView: View {
-    
     class Settings: ObservableObject {
         @AppStorage("username") var username: String = ""
         @AppStorage(\.gitHubCopilotProxyUrl) var gitHubCopilotProxyUrl
@@ -14,8 +13,6 @@ struct SuggesionSettingProxyView: View {
         @AppStorage(\.gitHubCopilotProxyPassword) var gitHubCopilotProxyPassword
         @AppStorage(\.gitHubCopilotUseStrictSSL) var gitHubCopilotUseStrictSSL
         @AppStorage(\.gitHubCopilotEnterpriseURI) var gitHubCopilotEnterpriseURI
-        
-        init() {}
     }
     
     @StateObject var settings = Settings()
@@ -23,48 +20,98 @@ struct SuggesionSettingProxyView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            SettingsDivider("Enterprise")
+            Text(StringConstants.enterprise)
+                .bold()
+                .padding(.leading, 8)
             
             Form {
                 TextField(
                     text: $settings.gitHubCopilotEnterpriseURI,
-                    prompt: Text("Leave it blank if none is available.")
+                    prompt: Text(StringConstants.leaveBlankPrompt)
                 ) {
-                    Text("Auth provider URL")
+                    Text(StringConstants.authProviderURL)
                 }
+                .textFieldStyle(PlainTextFieldStyle())
+                .multilineTextAlignment(.trailing)
             }
+            .padding(8)
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(6)
+            .padding(.bottom, 16)
             
-            SettingsDivider("Proxy")
+            Text(StringConstants.proxy)
+                .bold()
+                .padding(.leading, 8)
             
-            Form {
-                TextField(
-                    text: $settings.gitHubCopilotProxyUrl,
-                    prompt: Text("http://host:port")
-                ) {
-                    Text("Proxy URL")
+            VStack(spacing: 0) {
+                Form {
+                    TextField(
+                        text: $settings.gitHubCopilotProxyUrl,
+                        prompt: Text(StringConstants.proxyURLPrompt)
+                    ) {
+                        Text(StringConstants.proxyURL)
+                    }
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .multilineTextAlignment(.trailing)
                 }
-                TextField(text: $settings.gitHubCopilotProxyUsername) {
-                    Text("Proxy username")
-                }
-                SecureField(text: $settings.gitHubCopilotProxyPassword) {
-                    Text("Proxy password")
-                }
-                Toggle("Proxy strict SSL", isOn: $settings.gitHubCopilotUseStrictSSL)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 
-                Button("Refresh configurations") {
-                    refreshConfiguration()
-                }.padding(.top, 6)
+                Divider()
+                
+                Form {
+                    TextField(text: $settings.gitHubCopilotProxyUsername, prompt: Text(StringConstants.proxyUsernamePrompt)) {
+                        Text(StringConstants.proxyUsername)
+                    }
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .multilineTextAlignment(.trailing)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                
+                Divider()
+                
+                Form {
+                    SecureField(text: $settings.gitHubCopilotProxyPassword, prompt: Text(StringConstants.proxyPasswordPrompt)) {
+                        Text(StringConstants.proxyPassword)
+                    }
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .multilineTextAlignment(.trailing)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                
+                Divider()
+                
+                HStack {
+                    Text(StringConstants.proxyStrictSSL)
+                    Spacer()
+                    Toggle("", isOn: $settings.gitHubCopilotUseStrictSSL)
+                        .toggleStyle(.switch)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
             }
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(6)
+            .padding(.bottom, 8)
+            
+            HStack {
+                Spacer()
+                Button(StringConstants.refreshConfigurations) {
+                    refreshConfiguration()
+                }
+            }
+            .padding(.horizontal, 16)
+            Spacer()
         }
-        .textFieldStyle(.roundedBorder)
+        .padding(16)
     }
-
     func refreshConfiguration() {
         NotificationCenter.default.post(
             name: .gitHubCopilotShouldRefreshEditorInformation,
             object: nil
         )
-        
         Task {
             let service = try getService()
             do {

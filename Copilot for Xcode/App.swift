@@ -27,7 +27,6 @@ struct CopilotForXcodeApp: App {
                 .onAppear {
                     UserDefaults.setupDefaultSettings()
                 }
-                .environment(\.updateChecker, UpdateChecker(hostBundle: Bundle.main))
                 .copilotIntroSheet()
         }
     }

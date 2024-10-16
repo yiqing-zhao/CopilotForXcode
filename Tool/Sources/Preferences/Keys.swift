@@ -527,27 +527,31 @@ public extension UserDefaultPreferenceKeys {
     }
 }
 
-// MARK: - Feature
+// MARK: - Advanced Features
 
 public extension UserDefaultPreferenceKeys {
 
     var gitHubCopilotProxyUrl: PreferenceKey<String> {
         .init(defaultValue: "", key: "GitHubCopilotProxyUrl")
     }
-    
+
     var gitHubCopilotUseStrictSSL: PreferenceKey<Bool> {
         .init(defaultValue: true, key: "GitHubCopilotUseStrictSSL")
     }
-    
+
     var gitHubCopilotProxyUsername: PreferenceKey<String> {
         .init(defaultValue: "", key: "GitHubCopilotProxyUsername")
     }
-    
+
     var gitHubCopilotProxyPassword: PreferenceKey<String> {
         .init(defaultValue: "", key: "GitHubCopilotProxyPassword")
     }
-    
+
     var gitHubCopilotEnterpriseURI: PreferenceKey<String> {
         .init(defaultValue: "", key: "GitHubCopilotEnterpriseURI")
+    }
+
+    var verboseLoggingEnabled: PreferenceKey<Bool> {
+        .init(defaultValue: false, key: "VerboseLoggingEnabled")
     }
 }

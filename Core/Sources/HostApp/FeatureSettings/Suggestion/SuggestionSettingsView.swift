@@ -9,6 +9,7 @@ struct SuggestionSettingsView: View {
         ScrollView {
             SuggestionSettingsGeneralSectionView()
             SuggesionSettingProxyView()
+            LoggingSettingsView()
         }.padding()
     }
 }

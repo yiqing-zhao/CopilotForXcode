@@ -4,6 +4,6 @@
   "description": "Package for downloading @github/copilot-language-server",
   "private": true,
   "dependencies": {
-    "@github/copilot-language-server": "^1.238.0"
+    "@github/copilot-language-server": "^1.239.0"
   }
 }

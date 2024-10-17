@@ -209,7 +209,12 @@ let package = Package(
         // MARK: - Helpers
         
             .target(name: "FileChangeChecker"),
-        .target(name: "LaunchAgentManager"),
+        .target(
+            name: "LaunchAgentManager",
+            dependencies: [
+                .product(name: "Logger", package: "Tool"),
+            ]
+        ),
         .target(
             name: "UpdateChecker",
             dependencies: [

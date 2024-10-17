@@ -38,7 +38,7 @@ public struct TabContainer: View {
                             image: "CopilotLogo",
                             isSystemImage: false
                         )
-                    FeatureSettingsView().tabBarItem(
+                    AdvancedSettings().tabBarItem(
                         tag: 2,
                         title: "Advanced",
                         image: "gearshape.2.fill"

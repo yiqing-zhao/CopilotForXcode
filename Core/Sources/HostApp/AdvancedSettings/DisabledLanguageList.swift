@@ -15,7 +15,7 @@ extension List {
     }
 }
 
-struct SuggestionFeatureDisabledLanguageListView: View {
+struct DisabledLanguageList: View {
     final class Settings: ObservableObject {
         @AppStorage(\.suggestionFeatureDisabledLanguageList)
         var suggestionFeatureDisabledLanguageList: [String]
@@ -100,16 +100,15 @@ struct SuggestionFeatureDisabledLanguageListView: View {
     }
 }
 
-struct SuggestionFeatureDisabledLanguageListView_Preview: PreviewProvider {
-    static var previews: some View {
-        SuggestionFeatureDisabledLanguageListView(
-            isOpen: .constant(true),
-            settings: .init(suggestionFeatureDisabledLanguageList: .init(wrappedValue: [
-                "hello/2",
-                "hello/3",
-                "hello/4",
-            ], "SuggestionFeatureDisabledLanguageListView_Preview"))
-        )
-    }
+#Preview {
+    DisabledLanguageList(
+        isOpen: .constant(true),
+        settings: .init(suggestionFeatureDisabledLanguageList: .init(wrappedValue: [
+            "hello/2",
+            "hello/3",
+            "hello/4",
+        ], "SuggestionFeatureDisabledLanguageListView_Preview"))
+    )
 }
+
 

@@ -1,4 +1,5 @@
 import Foundation
+import Logger
 import ServiceManagement
 
 public struct LaunchAgentManager {
@@ -35,9 +36,11 @@ public struct LaunchAgentManager {
 
     public func setupLaunchAgent() async throws {
         if #available(macOS 13, *) {
+            Logger.client.info("Registering bridge launch agent")
             let bridgeLaunchAgent = SMAppService.agent(plistName: "bridgeLaunchAgent.plist")
             try bridgeLaunchAgent.register()
         } else {
+            Logger.client.info("Creating and loading bridge launch agent")
             let content = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -79,9 +82,11 @@ public struct LaunchAgentManager {
 
     public func removeLaunchAgent() async throws {
         if #available(macOS 13, *) {
+            Logger.client.info("Unregistering bridge launch agent")
             let bridgeLaunchAgent = SMAppService.agent(plistName: "bridgeLaunchAgent.plist")
             try await bridgeLaunchAgent.unregister()
         } else {
+            Logger.client.info("Unloading and removing bridge launch agent")
             try await launchctl("unload", launchAgentPath)
             try FileManager.default.removeItem(atPath: launchAgentPath)
         }
@@ -89,6 +94,7 @@ public struct LaunchAgentManager {
 
     public func reloadLaunchAgent() async throws {
         if #unavailable(macOS 13) {
+            Logger.client.info("Reloading bridge launch agent")
             try await helper("reload-launch-agent", "--service-identifier", serviceIdentifier)
         }
     }
@@ -97,6 +103,7 @@ public struct LaunchAgentManager {
         if #available(macOS 13, *) {
             let path = launchAgentPath
             if FileManager.default.fileExists(atPath: path) {
+                Logger.client.info("Unloading and removing old bridge launch agent")
                 try? await launchctl("unload", path)
                 try? FileManager.default.removeItem(atPath: path)
             }
@@ -106,6 +113,7 @@ public struct LaunchAgentManager {
                 with: "XPCService"
             )
             if FileManager.default.fileExists(atPath: path) {
+                Logger.client.info("Removing old bridge launch agent plist")
                 try? FileManager.default.removeItem(atPath: path)
             }
         }

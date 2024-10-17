@@ -33,7 +33,11 @@ final class FileLogger {
 }
 
 actor FileLoggerImplementation {
+    #if DEBUG
+    private let logBaseName = "github-copilot-for-xcode-dev"
+    #else
     private let logBaseName = "github-copilot-for-xcode"
+    #endif
     private let logExtension = "log"
     private let maxLogSize = 5_000_000
     private let logOverflowLimit = 5_000_000 * 2

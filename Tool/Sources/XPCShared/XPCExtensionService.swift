@@ -162,6 +162,16 @@ public class XPCExtensionService {
         )
     }
 
+
+    public func quitService() async throws {
+        try await withXPCServiceConnectedWithoutLaunching {
+            service, continuation in
+            service.quit {
+                continuation.resume(())
+            }
+        }
+    }
+
     public func postNotification(name: String) async throws {
         try await withXPCServiceConnected {
             service, continuation in
@@ -253,6 +263,20 @@ extension XPCExtensionService {
                 throw XPCExtensionServiceError.failedToCreateXPCConnection
             }
         }
+    }
+    
+    @XPCServiceActor
+    private func withXPCServiceConnectedWithoutLaunching<T>(
+        _ fn: @escaping (XPCServiceProtocol, AutoFinishContinuation<T>) -> Void
+    ) async throws -> T {
+        if let service, let connection = service.connection {
+            do {
+                return try await XPCShared.withXPCServiceConnected(connection: connection, fn)
+            } catch {
+                throw XPCExtensionServiceError.xpcServiceError(error)
+            }
+        }
+        throw XPCExtensionServiceError.failedToCreateXPCConnection
     }
 
     @XPCServiceActor

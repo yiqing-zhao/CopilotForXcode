@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import Logger
 
 class AppDelegate: NSObject, NSApplicationDelegate {}
 
@@ -15,5 +16,6 @@ listener.delegate = delegate
 listener.resume()
 let app = NSApplication.shared
 app.delegate = appDelegate
+Logger.communicationBridge.info("Communication bridge started")
 app.run()
 

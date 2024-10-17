@@ -4,6 +4,7 @@ import Foundation
 import LaunchAgentManager
 import SwiftUI
 import XPCShared
+import Logger
 
 @Reducer
 struct General {
@@ -21,6 +22,7 @@ struct General {
         case reloadStatus
         case finishReloading(xpcServiceVersion: String, permissionGranted: Bool)
         case failedReloading
+        case retryReloading
     }
 
     @Dependency(\.toast) var toast
@@ -32,29 +34,29 @@ struct General {
             switch action {
             case .appear:
                 return .run { send in
-                    Task {
-                        for await _ in DistributedNotificationCenter.default().notifications(named: NSNotification.Name("com.apple.accessibility.api")) {
-                            await send(.reloadStatus)
-                        }
-                    }
                     await send(.setupLaunchAgentIfNeeded)
+                    for await _ in DistributedNotificationCenter.default().notifications(named: NSNotification.Name("com.apple.accessibility.api")) {
+                        await send(.reloadStatus)
+                    }
                 }
 
             case .setupLaunchAgentIfNeeded:
                 return .run { send in
                     #if DEBUG
                     // do not auto install on debug build
+                    await send(.reloadStatus)
                     #else
                     Task {
                         do {
                             try await LaunchAgentManager()
                                 .setupLaunchAgentForTheFirstTimeIfNeeded()
                         } catch {
+                            Logger.ui.error("Failed to setup launch agent. \(error.localizedDescription)")
                             toast(error.localizedDescription, .error)
                         }
+                        await send(.reloadStatus)
                     }
                     #endif
-                    await send(.reloadStatus)
                 }
 
             case .openExtensionManager:
@@ -70,6 +72,7 @@ struct General {
                 }
 
             case .reloadStatus:
+                guard !state.isReloading else { return .none }
                 state.isReloading = true
                 return .run { send in
                     let service = try getService()
@@ -86,15 +89,17 @@ struct General {
                         } else {
                             toast("Launching service app.", .info)
                             try await Task.sleep(nanoseconds: 5_000_000_000)
-                            await send(.reloadStatus)
+                            await send(.retryReloading)
                         }
                     } catch let error as XPCCommunicationBridgeError {
+                        Logger.ui.error("Failed to reach communication bridge. \(error.localizedDescription)")
                         toast(
                             "Failed to reach communication bridge. \(error.localizedDescription)",
                             .error
                         )
                         await send(.failedReloading)
                     } catch {
+                        Logger.ui.error("Failed to reload status. \(error.localizedDescription)")
                         toast(error.localizedDescription, .error)
                         await send(.failedReloading)
                     }
@@ -109,6 +114,12 @@ struct General {
             case .failedReloading:
                 state.isReloading = false
                 return .none
+
+            case .retryReloading:
+                state.isReloading = false
+                return .run { send in
+                    await send(.reloadStatus)
+                }
             }
         }
     }

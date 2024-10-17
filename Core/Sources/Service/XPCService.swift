@@ -196,6 +196,13 @@ public class XPCService: NSObject, XPCServiceProtocol {
         NotificationCenter.default.post(name: .init(name), object: nil)
     }
 
+    public func quit(reply: @escaping () -> Void) {
+        Task {
+            await Service.shared.prepareForExit()
+            reply()
+        }
+    }
+
     // MARK: - Requests
 
     public func send(

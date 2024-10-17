@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>
-        <key></key>
+        <key>APP_ID_PREFIX</key>
         <string>$(AppIdentifierPrefix)</string>
         <key>APPLICATION_SUPPORT_FOLDER</key>
         <string>$(APPLICATION_SUPPORT_FOLDER)</string>

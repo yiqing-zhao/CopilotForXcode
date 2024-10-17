@@ -1,9 +1,11 @@
 import GitHubCopilotService
 import ComposableArchitecture
-import KeyboardShortcuts
-import LaunchAgentManager
 import SwiftUI
 
+struct SignInResponse {
+    let userCode: String
+    let verificationURL: URL
+}
 
 @MainActor
 class GitHubCopilotViewModel: ObservableObject {

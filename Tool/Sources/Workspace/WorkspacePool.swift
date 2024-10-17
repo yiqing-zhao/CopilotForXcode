@@ -1,5 +1,6 @@
 import Dependencies
 import Foundation
+import Logger
 import XcodeInspector
 
 public struct WorkspacePoolDependencyKey: DependencyKey {
@@ -61,12 +62,12 @@ public class WorkspacePool {
     }
 
     public func fetchFilespaceIfExisted(fileURL: URL) -> Filespace? {
-        for workspace in workspaces.values {
-            if let filespace = workspace.filespaces[fileURL] {
-                return filespace
-            }
-        }
-        return nil
+        let filespaces = workspaces.values.compactMap { $0.filespaces[fileURL] }
+        if filespaces.isEmpty { return nil }
+        if filespaces.count == 1 { return filespaces.first }
+        Logger.workspacePool.info("Multiple workspaces found with file: \(fileURL)")
+        // If multiple workspaces are found, return the first with a suggestion
+        return filespaces.first { $0.presentingSuggestion != nil }
     }
 
     @WorkspaceActor

@@ -35,6 +35,16 @@ struct GeneralSettingsView: View {
                 Restart Xcode if greyed out.
                 """
             )
+        } footer: {
+            HStack {
+                Spacer()
+                Button("?") {
+                    NSWorkspace.shared.open(
+                        URL(string: "https://github.com/github/CopilotForXcode/blob/main/TROUBLESHOOTING.md")!
+                    )
+                }
+                .clipShape(Circle())
+            }
         }
         .alert(
             "Enable Extension Permission",

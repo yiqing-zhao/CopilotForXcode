@@ -16,8 +16,8 @@ struct GeneralView: View {
         }
         .task {
             if isPreview { return }
-            await store.send(.appear).finish()
             viewModel.checkStatus()
+            await store.send(.appear).finish()
         }
     }
 

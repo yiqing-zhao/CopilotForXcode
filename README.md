@@ -103,6 +103,9 @@ We’d love to get your help in making GitHub Copilot better!  If you have
 feedback or encounter any problems, please reach out on our [Feedback
 forum](https://github.com/orgs/community/discussions/categories/copilot).
 
-## Acknowledgement
+## Acknowledgements
 
-Thank you to @intitni for creating the original that this project is based on.
+Thank you to @intitni for creating the original project that this is based on.
+
+Attributions can be found under About when running the app or in
+[Credits.rtf](./Copilot%20for%20Xcode/Credits.rtf).

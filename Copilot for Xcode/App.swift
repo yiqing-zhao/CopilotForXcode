@@ -15,6 +15,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool { true }
 }
 
+class AppUpdateCheckerDelegate: UpdateCheckerDelegate {
+    func prepareForRelaunch(finish: @escaping () -> Void) {
+        Task {
+            let service = try? getService()
+            try? await service?.quitService()
+            finish()
+        }
+    }
+}
+
 @main
 struct CopilotForXcodeApp: App {
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
@@ -28,9 +38,12 @@ struct CopilotForXcodeApp: App {
                     UserDefaults.setupDefaultSettings()
                 }
                 .copilotIntroSheet()
+                .environment(\.updateChecker, UpdateChecker(
+                    hostBundle: Bundle.main,
+                    checkerDelegate: AppUpdateCheckerDelegate()
+                ))
         }
     }
 }
 
 var isPreview: Bool { ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" }
-

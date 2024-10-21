@@ -201,11 +201,11 @@ private extension EnvironmentValues {
 }
 
 struct UpdateCheckerKey: EnvironmentKey {
-    static var defaultValue: UpdateChecker = .init(hostBundle: Bundle.main)
+    static var defaultValue: UpdateCheckerProtocol = NoopUpdateChecker()
 }
 
 public extension EnvironmentValues {
-    var updateChecker: UpdateChecker {
+    var updateChecker: UpdateCheckerProtocol {
         get { self[UpdateCheckerKey.self] }
         set { self[UpdateCheckerKey.self] = newValue }
     }

@@ -16,7 +16,6 @@ struct AppInfoView: View {
     @StateObject var settings = Settings()
     @StateObject var viewModel: GitHubCopilotViewModel
 
-    @State var automaticallyCheckForUpdate: Bool?
     @State var appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
 
     let store: StoreOf<General>
@@ -48,11 +47,8 @@ struct AppInfoView: View {
                 }
                 HStack {
                     Toggle(isOn: .init(
-                        get: { automaticallyCheckForUpdate ?? updateChecker.automaticallyChecksForUpdates },
-                        set: {
-                            updateChecker.automaticallyChecksForUpdates = $0
-                            automaticallyCheckForUpdate = $0
-                        }
+                        get: { updateChecker.getAutomaticallyChecksForUpdates() },
+                        set: { updateChecker.setAutomaticallyChecksForUpdates($0) }
                     )) {
                         Text("Automatically Check for Updates")
                     }

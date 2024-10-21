@@ -17,6 +17,15 @@ let bundleIdentifierBase = Bundle.main
     .object(forInfoDictionaryKey: "BUNDLE_IDENTIFIER_BASE") as! String
 let serviceIdentifier = bundleIdentifierBase + ".ExtensionService"
 
+class ExtensionUpdateCheckerDelegate: UpdateCheckerDelegate {
+    func prepareForRelaunch(finish: @escaping () -> Void) {
+        Task {
+            await Service.shared.prepareForExit()
+            finish()
+        }
+    }
+}
+
 @main
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let service = Service.shared
@@ -24,8 +33,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var xpcController: XPCController?
     let updateChecker =
         UpdateChecker(
-            hostBundle: locateHostBundleURL(url: Bundle.main.bundleURL)
-                .flatMap(Bundle.init(url:))
+            hostBundle: Bundle(url: locateHostBundleURL(url: Bundle.main.bundleURL)),
+            checkerDelegate: ExtensionUpdateCheckerDelegate()
         )
     let statusChecker: AuthStatusChecker = AuthStatusChecker()
     var xpcExtensionService: XPCExtensionService?
@@ -57,12 +66,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     @objc func openCopilotForXcode() {
         let task = Process()
-        if let appPath = locateHostBundleURL(url: Bundle.main.bundleURL)?.absoluteString {
-            task.launchPath = "/usr/bin/open"
-            task.arguments = [appPath]
-            task.launch()
-            task.waitUntilExit()
-        }
+        let appPath = locateHostBundleURL(url: Bundle.main.bundleURL)
+        task.launchPath = "/usr/bin/open"
+        task.arguments = [appPath.absoluteString]
+        task.launch()
+        task.waitUntilExit()
     }
 
     @objc func openGlobalChat() {
@@ -140,6 +148,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     @objc func checkForUpdate() {
+        guard let updateChecker = updateChecker else {
+            Logger.service.error("Unable to check for updates: updateChecker is nil.")
+            return
+        }
         updateChecker.checkForUpdates()
     }
 
@@ -160,7 +172,7 @@ extension NSRunningApplication {
     }
 }
 
-func locateHostBundleURL(url: URL) -> URL? {
+func locateHostBundleURL(url: URL) -> URL {
     var nextURL = url
     while nextURL.path != "/" {
         nextURL = nextURL.deletingLastPathComponent()

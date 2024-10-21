@@ -2,7 +2,6 @@ import ComposableArchitecture
 import SwiftUI
 
 struct GeneralSettingsView: View {
-    @Environment(\.updateChecker) var updateChecker
     @AppStorage(\.extensionPermissionShown) var extensionPermissionShown: Bool
     @AppStorage(\.quitXPCServiceOnXcodeAndAppQuit) var quitXPCServiceOnXcodeAndAppQuit: Bool
     @State private var shouldPresentExtensionPermissionAlert = false

@@ -1,10 +1,10 @@
-# <img align="center" height="70" src="./Docs/AppIcon.png"/> GitHub Copilot For Xcode
+# <img align="center" height="70" src="./Docs/AppIcon.png"/> GitHub Copilot for Xcode
 
 <img alt="Demo of GitHub Copilot for Xcode" src="./Docs/demo.gif" width="800" />
 
 [GitHub Copilot](https://github.com/features/copilot) is an AI pair programmer
-that helps you write code faster and smarter. Copilot for Xcode is an
-Xcode extension that provides inline coding suggestions as you type.
+tool that helps you write code faster and smarter. Copilot for Xcode is an Xcode
+extension that provides inline coding suggestions as you type.
 
 ## Beta Preview Policy
 
@@ -21,7 +21,8 @@ As per [GitHub's Terms of Service](https://docs.github.com/en/github/site-policy
 
 ## Getting Started
 
-1. Download the latest `dmg` from: https://github.com/github/copilot-xcode/releases/latest/download/GitHubCopilotForXcode.dmg
+1. Download the `dmg` from
+   [the latest release](https://github.com/github/copilot-xcode/releases/latest/download/GitHubCopilotForXcode.dmg).
    Updates can be downloaded and installed by the app.
 
 1. Open the `dmg` and drag the `GitHub Copilot for Xcode.app` into the `Applications` folder.

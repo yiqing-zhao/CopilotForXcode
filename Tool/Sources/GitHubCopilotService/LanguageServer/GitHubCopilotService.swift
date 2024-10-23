@@ -187,8 +187,7 @@ public class GitHubCopilotBaseService {
                         "editorPluginInfo": [
                             "name": "copilot-xcode",
                             "version": versionNumber,
-                        ],
-                        "editorConfiguration": editorConfiguration(),
+                        ]
                     ],
                     capabilities: capabilities,
                     trace: .off,
@@ -208,6 +207,12 @@ public class GitHubCopilotBaseService {
         let notifications = NotificationCenter.default
             .notifications(named: .gitHubCopilotShouldRefreshEditorInformation)
         Task { [weak self] in
+            // Send workspace/didChangeConfiguration once after initalize
+            _ = try? await server.sendNotification(
+                .workspaceDidChangeConfiguration(
+                    .init(settings: editorConfiguration())
+                )
+            )
             for await _ in notifications {
                 guard self != nil else { return }
                 _ = try? await server.sendNotification(

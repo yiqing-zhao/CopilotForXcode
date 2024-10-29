@@ -8,7 +8,7 @@ extension that provides inline coding suggestions as you type.
 
 ## Beta Preview Policy
 
-As per [GitHub's Terms of Service](https://docs.github.com/en/github/site-policy/github-terms-of-service#j-beta-previews) we want to remind you that:
+Use of the GitHub Copilot XCode Extension is subject to [GitHub's Pre-Release Terms](https://docs.github.com/en/site-policy/github-terms/github-pre-release-license-terms). We want to remind you that:
 
 > Beta Previews may not be supported or may change at any time. You may receive confidential information through those programs that must remain confidential while the program is private. We'd love your feedback to make our Beta Previews better.
 
@@ -90,10 +90,8 @@ refer to [LICENSE.txt](./LICENSE.txt) for the full terms.
 
 ## Privacy
 
-Your code is yours. We follow responsible practices in accordance with our
-[Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement)
-to ensure that your code snippets will not be used as suggested code for other
-users of GitHub Copilot.
+We follow responsible practices in accordance with our
+[Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement).
 
 To get the latest security fixes, please use the latest version of the GitHub
 Copilot for Xcode.

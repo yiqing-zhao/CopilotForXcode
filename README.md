@@ -86,7 +86,7 @@ As per [GitHub's Terms of Service](https://docs.github.com/en/github/site-policy
 ## License
 
 This project is licensed under the terms of the MIT open source license. Please
-refer to [MIT](./LICENSE.txt) for the full terms.
+refer to [LICENSE.txt](./LICENSE.txt) for the full terms.
 
 ## Privacy
 

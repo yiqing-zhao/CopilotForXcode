@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import Preferences
+import Status
 import SuggestionBasic
 import XcodeInspector
 import Logger
@@ -12,10 +13,6 @@ extension AppDelegate {
 
     fileprivate var xcodeInspectorDebugMenuIdentifier: NSUserInterfaceItemIdentifier {
         .init("xcodeInspectorDebugMenu")
-    }
-
-    fileprivate var accessibilityAPIPermissionMenuItemIdentifier: NSUserInterfaceItemIdentifier {
-        .init("accessibilityAPIPermissionMenuItem")
     }
 
     fileprivate var sourceEditorDebugMenu: NSUserInterfaceItemIdentifier {
@@ -72,12 +69,12 @@ extension AppDelegate {
         xcodeInspectorDebug.submenu = xcodeInspectorDebugMenu
         xcodeInspectorDebug.isHidden = false
 
-        let accessibilityAPIPermission = NSMenuItem(
-            title: "Accessibility Permission: N/A",
-            action: nil,
+        statusMenuItem = NSMenuItem(
+            title: "",
+            action: #selector(openStatusLink),
             keyEquivalent: ""
         )
-        accessibilityAPIPermission.identifier = accessibilityAPIPermissionMenuItemIdentifier
+        statusMenuItem.isHidden = true
 
         let quitItem = NSMenuItem(
             title: "Quit",
@@ -126,7 +123,7 @@ extension AppDelegate {
         statusBarMenu.addItem(toggleIgnoreLanguage)
         statusBarMenu.addItem(.separator())
         statusBarMenu.addItem(copilotStatus)
-        statusBarMenu.addItem(accessibilityAPIPermission)
+        statusBarMenu.addItem(statusMenuItem)
         statusBarMenu.addItem(.separator())
         statusBarMenu.addItem(openDocs)
         statusBarMenu.addItem(openForum)
@@ -160,20 +157,12 @@ extension AppDelegate: NSMenuDelegate {
                 item.identifier == toggleIgnoreLanguageMenuItemIdentifier
             }) {
                 if let lang = DisabledLanguageList.shared.activeDocumentLanguage {
-                    toggleLanguage.title = "\(DisabledLanguageList.shared.isEnabled(lang) ? "Disable" : "Enable") Completions For \(lang.rawValue)"
+                    toggleLanguage.title = "\(DisabledLanguageList.shared.isEnabled(lang) ? "Disable" : "Enable") Completions for \(lang.rawValue)"
                     toggleLanguage.action = #selector(toggleIgnoreLanguage)
                 } else {
                     toggleLanguage.title = "No Active Document"
                     toggleLanguage.action = nil
                 }
-            }
-
-            if let accessibilityAPIPermission = menu.items.first(where: { item in
-                item.identifier == accessibilityAPIPermissionMenuItemIdentifier
-            }) {
-                AXIsProcessTrusted()
-                accessibilityAPIPermission.title =
-                    "Accessibility Permission: \(AXIsProcessTrusted() ? "Granted" : "Not Granted")"
             }
 
             statusChecker.updateStatusInBackground(notify: { (status: String, isOk: Bool) in
@@ -317,6 +306,15 @@ private extension AppDelegate {
     @objc func openCopilotForum() {
         if let urlString = Bundle.main.object(forInfoDictionaryKey: "COPILOT_FORUM_URL") as? String {
             if let url = URL(string: urlString) {
+                NSWorkspace.shared.open(url)
+            }
+        }
+    }
+
+    @objc func openStatusLink() {
+        Task {
+            let status = await Status.shared.getStatus()
+            if let s = status.url, let url = URL(string: s) {
                 NSWorkspace.shared.open(url)
             }
         }

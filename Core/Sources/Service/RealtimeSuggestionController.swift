@@ -6,6 +6,7 @@ import Combine
 import Foundation
 import Logger
 import Preferences
+import Status
 import QuartzCore
 import Workspace
 import XcodeInspector
@@ -124,10 +125,12 @@ public actor RealtimeSuggestionController {
                 do {
                     try await XcodeInspector.shared.safe.latestActiveXcode?
                         .triggerCopilotCommand(name: "Sync Text Settings")
+                    await Status.shared.updateExtensionStatus(.succeeded)
                 } catch {
                     if filespace.codeMetadata.uti?.isEmpty ?? true {
                         filespace.codeMetadata.uti = nil
                     }
+                    await Status.shared.updateExtensionStatus(.failed)
                 }
             }
         }

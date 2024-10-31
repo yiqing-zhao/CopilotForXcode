@@ -1,4 +1,5 @@
 import Foundation
+import Status
 import SuggestionBasic
 
 @objc(XPCServiceProtocol)
@@ -53,7 +54,7 @@ public protocol XPCServiceProtocol {
     )
 
     func getXPCServiceVersion(withReply reply: @escaping (String, String) -> Void)
-    func getXPCServiceAccessibilityPermission(withReply reply: @escaping (Bool) -> Void)
+    func getXPCServiceAccessibilityPermission(withReply reply: @escaping (ObservedAXStatus) -> Void)
     func postNotification(name: String, withReply reply: @escaping () -> Void)
     func send(endpoint: String, requestBody: Data, reply: @escaping (Data?, Error?) -> Void)
     func quit(reply: @escaping () -> Void)

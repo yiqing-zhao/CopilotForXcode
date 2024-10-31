@@ -6,6 +6,7 @@ import Logger
 import Preferences
 import Service
 import ServiceManagement
+import Status
 import SwiftUI
 import UpdateChecker
 import UserDefaultsObserver
@@ -30,6 +31,7 @@ class ExtensionUpdateCheckerDelegate: UpdateCheckerDelegate {
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let service = Service.shared
     var statusBarItem: NSStatusItem!
+    var statusMenuItem: NSMenuItem!
     var xpcController: XPCController?
     let updateChecker =
         UpdateChecker(
@@ -39,21 +41,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let statusChecker: AuthStatusChecker = AuthStatusChecker()
     var xpcExtensionService: XPCExtensionService?
     private var cancellables = Set<AnyCancellable>()
+    private var progressView: NSProgressIndicator?
+    private var idleIcon = NSImage(named: "MenuBarIcon")
 
     func applicationDidFinishLaunching(_: Notification) {
         if ProcessInfo.processInfo.environment["IS_UNIT_TEST"] == "YES" { return }
         _ = XcodeInspector.shared
+        service.markAsProcessing = { [weak self] in
+            guard let self = self else { return }
+            self.markAsProcessing($0)
+        }
         service.start()
         AXIsProcessTrustedWithOptions([
             kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true,
         ] as CFDictionary)
         setupQuitOnUpdate()
         setupQuitOnUserTerminated()
-        setupQuitOnFeatureFlag()
         xpcController = .init()
         Logger.service.info("XPC Service started.")
         NSApp.setActivationPolicy(.accessory)
         buildStatusBarMenu()
+        watchServiceStatus()
+        watchAXStatus()
+        updateStatusBarItem() // set the initial status
     }
 
     @objc func quit() {
@@ -132,15 +142,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
 
-    func setupQuitOnFeatureFlag() {
-        FeatureFlagNotifierImpl.shared.featureFlagsDidChange.sink { [weak self] (flags) in
-            if flags.x != true {
-                Logger.service.info("Xcode feature flag not granted, quitting.")
-                self?.quit()
-            }
-        }.store(in: &cancellables)
-    }
-
     func requestAccessoryAPIPermission() {
         AXIsProcessTrustedWithOptions([
             kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true,
@@ -160,6 +161,70 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let service = XPCExtensionService(logger: .service)
         xpcExtensionService = service
         return service
+    }
+
+    func watchServiceStatus() {
+        let notifications = NotificationCenter.default.notifications(named: .serviceStatusDidChange)
+        Task { [weak self] in
+            for await _ in notifications {
+                guard let self else { return }
+                self.updateStatusBarItem()
+            }
+        }
+    }
+
+    func watchAXStatus() {
+        let osNotifications = DistributedNotificationCenter.default().notifications(named: NSNotification.Name("com.apple.accessibility.api"))
+        Task { [weak self] in
+            for await _ in osNotifications {
+                guard let self else { return }
+                self.updateStatusBarItem()
+            }
+        }
+    }
+
+    func updateStatusBarItem() {
+        Task { @MainActor in
+            let status = await Status.shared.getStatus()
+            let image = if status.system {
+                NSImage(systemSymbolName: status.icon, accessibilityDescription: nil)
+            } else {
+                NSImage(named: status.icon)
+            }
+            idleIcon = image
+            self.statusBarItem.button?.image = image
+            if let message = status.message {
+                // TODO switch to attributedTitle to enable line breaks and color.
+                self.statusMenuItem.title = message
+                self.statusMenuItem.isHidden = false
+                self.statusMenuItem.isEnabled = status.url != nil
+            } else {
+                self.statusMenuItem.isHidden = true
+            }
+        }
+    }
+
+    func markAsProcessing(_ isProcessing: Bool) {
+        if !isProcessing {
+            // No longer in progress
+            progressView?.removeFromSuperview()
+            progressView = nil
+            statusBarItem.button?.image = idleIcon
+            return
+        }
+        if progressView != nil {
+            // Already in progress
+            return
+        }
+        let progress = NSProgressIndicator()
+        progress.style = .spinning
+        progress.sizeToFit()
+        progress.frame = statusBarItem.button?.bounds ?? .zero
+        progress.isIndeterminate = true
+        progress.startAnimation(nil)
+        statusBarItem.button?.addSubview(progress)
+        statusBarItem.button?.image = nil
+        progressView = progress
     }
 }
 

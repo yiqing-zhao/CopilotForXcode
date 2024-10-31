@@ -32,6 +32,7 @@ public final class Service {
     let globalShortcutManager: GlobalShortcutManager
     let keyBindingManager: KeyBindingManager
     let xcodeThemeController: XcodeThemeController = .init()
+    public var markAsProcessing: (Bool) -> Void = { _ in }
 
     @Dependency(\.toast) var toast
     var cancellable = Set<AnyCancellable>()

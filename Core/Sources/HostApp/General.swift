@@ -2,6 +2,7 @@ import Client
 import ComposableArchitecture
 import Foundation
 import LaunchAgentManager
+import Status
 import SwiftUI
 import XPCShared
 import Logger
@@ -11,7 +12,7 @@ struct General {
     @ObservableState
     struct State: Equatable {
         var xpcServiceVersion: String?
-        var isAccessibilityPermissionGranted: Bool?
+        var isAccessibilityPermissionGranted: ObservedAXStatus = .unknown
         var isReloading = false
     }
 
@@ -20,7 +21,7 @@ struct General {
         case setupLaunchAgentIfNeeded
         case openExtensionManager
         case reloadStatus
-        case finishReloading(xpcServiceVersion: String, permissionGranted: Bool)
+        case finishReloading(xpcServiceVersion: String, permissionGranted: ObservedAXStatus)
         case failedReloading
         case retryReloading
     }
@@ -35,7 +36,7 @@ struct General {
             case .appear:
                 return .run { send in
                     await send(.setupLaunchAgentIfNeeded)
-                    for await _ in DistributedNotificationCenter.default().notifications(named: NSNotification.Name("com.apple.accessibility.api")) {
+                    for await _ in DistributedNotificationCenter.default().notifications(named: .serviceStatusDidChange) {
                         await send(.reloadStatus)
                     }
                 }

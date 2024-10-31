@@ -5,7 +5,6 @@ public struct FeatureFlags: Hashable, Codable {
     public var rt: Bool
     public var sn: Bool
     public var chat: Bool
-    public var x: Bool?
     public var xc: Bool?
 }
 

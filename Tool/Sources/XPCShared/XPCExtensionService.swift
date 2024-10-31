@@ -1,5 +1,6 @@
 import Foundation
 import Logger
+import Status
 
 public enum XPCExtensionServiceError: Swift.Error, LocalizedError {
     case failedToGetServiceEndpoint
@@ -48,7 +49,7 @@ public class XPCExtensionService {
         }
     }
 
-    public func getXPCServiceAccessibilityPermission() async throws -> Bool {
+    public func getXPCServiceAccessibilityPermission() async throws -> ObservedAXStatus {
         try await withXPCServiceConnected {
             service, continuation in
             service.getXPCServiceAccessibilityPermission { isGranted in

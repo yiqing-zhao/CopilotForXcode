@@ -50,7 +50,7 @@ let package = Package(
         // quick hack to support custom UserDefaults
         // https://github.com/sindresorhus/KeyboardShortcuts
             .package(url: "https://github.com/devm33/KeyboardShortcuts", branch: "main"),
-        .package(url: "https://github.com/devm33/CGEventOverride", from: "1.2.1"),
+        .package(url: "https://github.com/devm33/CGEventOverride", branch: "devm33/fix-stale-AXIsProcessTrusted"),
         .package(url: "https://github.com/devm33/Highlightr", branch: "master"),
     ],
     targets: [
@@ -83,6 +83,7 @@ let package = Package(
                 .product(name: "UserDefaultsObserver", package: "Tool"),
                 .product(name: "AppMonitoring", package: "Tool"),
                 .product(name: "SuggestionBasic", package: "Tool"),
+                .product(name: "Status", package: "Tool"),
                 .product(name: "ChatTab", package: "Tool"),
                 .product(name: "Logger", package: "Tool"),
                 .product(name: "ChatAPIService", package: "Tool"),

@@ -9,8 +9,14 @@ struct GeneralSettingsView: View {
     let store: StoreOf<General>
 
     var accessibilityPermissionSubtitle: String {
-        guard let granted = store.isAccessibilityPermissionGranted else { return "Loading..." }
-        return granted ? "Granted" : "Not Granted. Required to run. Click to open System Preferences."
+        switch store.isAccessibilityPermissionGranted {
+        case .granted:
+            return "Granted"
+        case .notGranted:
+            return "Not Granted. Required to run. Click to open System Preferences."
+        case .unknown:
+            return ""
+        }
     }
 
     var body: some View {

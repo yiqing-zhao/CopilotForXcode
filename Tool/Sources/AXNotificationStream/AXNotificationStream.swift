@@ -3,6 +3,7 @@ import ApplicationServices
 import Foundation
 import Logger
 import Preferences
+import Status
 
 public final class AXNotificationStream: AsyncSequence {
     public typealias Stream = AsyncStream<Element>
@@ -125,6 +126,7 @@ public final class AXNotificationStream: AsyncSequence {
                     switch e {
                     case .success:
                         pendingRegistrationNames.remove(name)
+                        await Status.shared.updateAXStatus(.granted)
                     case .actionUnsupported:
                         Logger.service.error("AXObserver: Action unsupported: \(name)")
                         pendingRegistrationNames.remove(name)
@@ -132,6 +134,7 @@ public final class AXNotificationStream: AsyncSequence {
                         Logger.service
                             .error("AXObserver: Accessibility API disabled, will try again later")
                         retry -= 1
+                        await Status.shared.updateAXStatus(.notGranted)
                     case .invalidUIElement:
                         Logger.service
                             .error("AXObserver: Invalid UI element, notification name \(name)")

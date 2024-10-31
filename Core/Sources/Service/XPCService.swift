@@ -4,6 +4,7 @@ import GitHubCopilotService
 import LanguageServerProtocol
 import Logger
 import Preferences
+import Status
 import XPCShared
 
 public class XPCService: NSObject, XPCServiceProtocol {
@@ -16,8 +17,10 @@ public class XPCService: NSObject, XPCServiceProtocol {
         )
     }
 
-    public func getXPCServiceAccessibilityPermission(withReply reply: @escaping (Bool) -> Void) {
-        reply(AXIsProcessTrusted())
+    public func getXPCServiceAccessibilityPermission(withReply reply: @escaping (ObservedAXStatus) -> Void) {
+        Task {
+            reply(await Status.shared.getAXStatus())
+        }
     }
 
     // MARK: - Suggestion

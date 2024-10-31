@@ -1,20 +1,6 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct ActivityIndicatorView: NSViewRepresentable {
-    func makeNSView(context _: Context) -> NSProgressIndicator {
-        let progressIndicator = NSProgressIndicator()
-        progressIndicator.style = .spinning
-        progressIndicator.controlSize = .small
-        progressIndicator.startAnimation(nil)
-        return progressIndicator
-    }
-
-    func updateNSView(_: NSProgressIndicator, context _: Context) {
-        // No-op
-    }
-}
-
 struct CopilotConnectionView: View {
     @AppStorage("username") var username: String = ""
     @Environment(\.toast) var toast
@@ -38,6 +24,9 @@ struct CopilotConnectionView: View {
             title: "GitHub Account Status Permissions",
             subtitle: "GitHub Connection: \(viewModel.status?.description ?? "Loading...")"
         ) {
+            if viewModel.isRunningAction || waitingForSignIn {
+                ProgressView().controlSize(.small)
+            }
             Button("Refresh Connection") {
                 viewModel.checkStatus()
             }
@@ -71,9 +60,6 @@ struct CopilotConnectionView: View {
                 Button("Logout from GitHub") { viewModel.signOut()
                     viewModel.isSignInAlertPresented = false
                 }
-            }
-            if viewModel.isRunningAction || waitingForSignIn {
-                ActivityIndicatorView()
             }
         }
     }

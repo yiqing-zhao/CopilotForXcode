@@ -17,6 +17,7 @@ let package = Package(
         .library(name: "SuggestionBasic", targets: ["SuggestionBasic"]),
         .library(name: "Toast", targets: ["Toast"]),
         .library(name: "SharedUIComponents", targets: ["SharedUIComponents"]),
+        .library(name: "Status", targets: ["Status"]),
         .library(name: "UserDefaultsObserver", targets: ["UserDefaultsObserver"]),
         .library(name: "Workspace", targets: ["Workspace", "WorkspaceSuggestionService"]),
         .library(
@@ -68,7 +69,7 @@ let package = Package(
     targets: [
         // MARK: - Helpers
 
-        .target(name: "XPCShared", dependencies: ["SuggestionBasic", "Logger"]),
+        .target(name: "XPCShared", dependencies: ["SuggestionBasic", "Logger", "Status"]),
 
         .target(name: "Configs"),
 
@@ -128,6 +129,7 @@ let package = Package(
             dependencies: [
                 "Preferences",
                 "Logger",
+                "Status",
             ]
         ),
 
@@ -141,6 +143,7 @@ let package = Package(
                 "Toast",
                 "Preferences",
                 "AsyncPassthroughSubject",
+                "Status",
                 .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
             ]
         ),
@@ -205,6 +208,8 @@ let package = Package(
         ),
 
         // MARK: - Services
+
+        .target(name: "Status"),
 
         .target(name: "SuggestionProvider", dependencies: [
             "SuggestionBasic",

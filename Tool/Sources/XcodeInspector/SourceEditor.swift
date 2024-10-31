@@ -3,6 +3,7 @@ import AsyncPassthroughSubject
 import AXNotificationStream
 import Foundation
 import Logger
+import Status
 import SuggestionBasic
 
 /// Representing a source editor inside Xcode.
@@ -54,7 +55,7 @@ public class SourceEditor {
     /// - note: This method is expensive. It needs to convert index based ranges to line based
     /// ranges.
     public func getContent() -> Content {
-        let content = element.value
+        let content = getElementValueAndRecordStatus()
         let selectionRange = element.selectedTextRange
         let (lines, selections) = cache.get(content: content, selectedTextRange: selectionRange)
 
@@ -71,6 +72,19 @@ public class SourceEditor {
             cursorOffset: selectionRange?.lowerBound ?? 0,
             lineAnnotations: lineAnnotations
         )
+    }
+
+    private func getElementValueAndRecordStatus() -> String {
+        do {
+            let value: String = try element.copyValue(key: kAXValueAttribute)
+            Task { await Status.shared.updateAXStatus(.granted) }
+            return value
+        } catch AXError.apiDisabled {
+            Task { await Status.shared.updateAXStatus(.notGranted) }
+        } catch {
+            // ignore
+        }
+        return ""
     }
 
     public init(runningApplication: NSRunningApplication, element: AXUIElement) {

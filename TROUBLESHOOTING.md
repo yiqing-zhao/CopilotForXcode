@@ -15,7 +15,8 @@ common issues:
    then Xcode needs to be restarted to enable the extension.
 
 3. Need more help? If these steps don't resolve the issue, please [open an
-   issue](https://github.com/github/CopilotForXcode/issues/new/choose).
+   issue](https://github.com/github/CopilotForXcode/issues/new/choose). Make
+   sure to [include logs](#logs) and any other relevant information.
 
 ## Extension Permission
 
@@ -34,8 +35,33 @@ Or you can navigate to the permission manually depending on your OS version:
 
 ## Accessibility Permission
 
-GitHub Copilot for Xcode requires accessibility permission to receive
-information from the active Xcode editor.
+GitHub Copilot for Xcode requires the accessibility permission to receive
+real-time updates from the active Xcode editor. [The XcodeKit
+API](https://developer.apple.com/documentation/xcodekit)
+enabled by the Xcode Source Editor extension permission only provides
+information when manually triggered by the user. In order to generate
+suggestions as you type, the accessibility permission is used read the
+Xcode editor content in real-time.
+
+The accessibility permission is also used to accept suggestions when `tab` is
+pressed.
+
+The accessibility permission is __not__ used to read or write to any
+applications besides Xcode. There are no granular options for the permission,
+but you can audit the usage in this repository: search for `CGEvent` and `AX`*.
 
 Enable in System Settings under `Privacy & Security` > `Accessibility` > 
 `GitHub Copilot for Xcode Extension` and turn on the toggle.
+
+## Logs
+
+Logs can be found in `~/Library/Logs/GitHubCopilot/` the most recent log file
+is:
+
+```
+~/Library/Logs/GitHubCopilot/github-copilot-for-xcode.log
+```
+
+To enable verbose logging, open the GitHub Copilot for Xcode settings and enable
+`Verbose Logging` in the `Advanced` tab. After enabling verbose logging, restart
+Copilot for Xcode for the change to take effect.

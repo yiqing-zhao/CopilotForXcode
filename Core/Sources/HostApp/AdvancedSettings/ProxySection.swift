@@ -15,33 +15,30 @@ struct ProxySection: View {
             SettingsTextField(
                 title: "Proxy URL",
                 prompt: "http://host:port",
-                text: $gitHubCopilotProxyUrl
+                text: wrapBinding($gitHubCopilotProxyUrl)
             )
             SettingsTextField(
                 title: "Proxy username",
                 prompt: "username",
-                text: $gitHubCopilotProxyUsername
+                text: wrapBinding($gitHubCopilotProxyUsername)
             )
             SettingsSecureField(
                 title: "Proxy password",
                 prompt: "password",
-                text: $gitHubCopilotProxyPassword
+                text: wrapBinding($gitHubCopilotProxyPassword)
             )
             SettingsToggle(
                 title: "Proxy strict SSL",
-                isOn: $gitHubCopilotUseStrictSSL
+                isOn: wrapBinding($gitHubCopilotUseStrictSSL)
             )
-        } footer: {
-            HStack {
-                Spacer()
-                Button("Refresh configurations") {
-                    refreshConfiguration()
-                }
-            }
         }
     }
 
-    func refreshConfiguration() {
+    private func wrapBinding<T>(_ b: Binding<T>) -> Binding<T> {
+        DebouncedBinding(b, handler: refreshConfiguration).binding
+    }
+
+    func refreshConfiguration(_: Any) {
         NotificationCenter.default.post(
             name: .gitHubCopilotShouldRefreshEditorInformation,
             object: nil

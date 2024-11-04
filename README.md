@@ -35,12 +35,14 @@ Use of the GitHub Copilot Xcode Extension is subject to [GitHub's Pre-Release Te
      <img alt="Screenshot of downloaded from the internet warning" src="./Docs/downloaded-from-internet.png" width="372" />
    </p>
 
-1. A background item will be added for the application to be able to start itself when Xcode starts.
+1. A background item will be added to enable Copilot to start when Xcode is opened.
    <p align="center">
      <img alt="Screenshot of background item" src="./Docs/background-item.png" width="370" />
    </p>
 
-1. Two permissions are required: `Accessibility` and `Xcode Source Editor Extension`.
+1. Two permissions are required: `Accessibility` and `Xcode Source Editor
+   Extension`. For more on why these permissions are required see
+   [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
 
    The first time the application is run the `Accessibility` permission should be requested:
 
@@ -57,7 +59,9 @@ Use of the GitHub Copilot Xcode Extension is subject to [GitHub's Pre-Release Te
      <img alt="Screenshot of extension permission" src="./Docs/extension-permission.png" width="582" />
    </p>
 
-1. After granting the extension permission, please restart Xcode so the `Github Copilot` menu is available under the Xcode `Editor` menu.
+1. After granting the extension permission, please restart Xcode to ensure the
+   `Github Copilot` menu is available and not disabled under the Xcode `Editor`
+   menu.
     <br>
     <p align="center">
       <img alt="Screenshot of Xcode Editor GitHub Copilot menu item" src="./Docs/xcode-menu.png" width="648" />
@@ -71,7 +75,16 @@ Use of the GitHub Copilot Xcode Extension is subject to [GitHub's Pre-Release Te
       <img alt="Screenshot of sign-in popup" src="./Docs/device-code.png" width="372" />
     </p>
 
-1. To install updates, click `Check for Updates` from the menu item or in the settings application. After installing a new version, Xcode must be restarted to use the new version correctly. New versions can also be installed from `dmg` files downloaded from the releases page. When installing a new version via `dmg`, the application must be run manually the first time to accept the downloaded from the internet warning.
+1. To install updates, click `Check for Updates` from the menu item or in the
+   settings application.
+
+   After installing a new version, Xcode must be restarted to use the new
+   version correctly.
+
+   New versions can also be installed from `dmg` files downloaded from the
+   releases page. When installing a new version via `dmg`, the application must
+   be run manually the first time to accept the downloaded from the internet
+   warning.
 
 1. To avoid confusion, we recommend disabling `Predictive code completion` under
    `Xcode` > `Preferences` > `Text Editing` > `Editing`.

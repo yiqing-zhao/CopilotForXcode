@@ -67,13 +67,11 @@ public func editorConfiguration() -> JSONValue {
             d["proxyAuthorization"] = .string(proxyAuthorization)
         }
         d["proxyStrictSSL"] = .bool(UserDefaults.shared.value(for: \.gitHubCopilotUseStrictSSL))
-        if d.isEmpty { return nil }
         return .hash(d)
     }
 
     var authProvider: JSONValue? {
         let enterpriseURI = UserDefaults.shared.value(for: \.gitHubCopilotEnterpriseURI)
-        if enterpriseURI.isEmpty { return nil }
         return .hash([ "uri": .string(enterpriseURI) ])
     }
 

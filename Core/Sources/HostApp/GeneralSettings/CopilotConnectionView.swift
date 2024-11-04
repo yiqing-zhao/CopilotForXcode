@@ -6,7 +6,6 @@ struct CopilotConnectionView: View {
     @Environment(\.toast) var toast
     @StateObject var viewModel = GitHubCopilotViewModel()
 
-    @State var waitingForSignIn = false
     let store: StoreOf<General>
 
     var body: some View {
@@ -24,13 +23,13 @@ struct CopilotConnectionView: View {
             title: "GitHub Account Status Permissions",
             subtitle: "GitHub Connection: \(viewModel.status?.description ?? "Loading...")"
         ) {
-            if viewModel.isRunningAction || waitingForSignIn {
+            if viewModel.isRunningAction || viewModel.waitingForSignIn {
                 ProgressView().controlSize(.small)
             }
             Button("Refresh Connection") {
                 viewModel.checkStatus()
             }
-            if waitingForSignIn {
+            if viewModel.waitingForSignIn {
                 Button("Cancel") {
                     viewModel.cancelWaiting()
                 }

@@ -6,7 +6,11 @@ Requires Node installed and `npm` available on your system path, e.g.
 
 ```sh
 sudo ln -s `which npm` /usr/local/bin
+sudo ln -s `which node` /usr/local/bin
 ```
+
+For context, this is used by an Xcode run script as part of the build. Run
+scripts use a very limited path to resolve commands.
 
 ## Targets 
 

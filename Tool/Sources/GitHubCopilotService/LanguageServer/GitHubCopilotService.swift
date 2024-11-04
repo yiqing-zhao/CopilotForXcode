@@ -314,7 +314,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
                             tabSize: tabSize,
                             insertSpaces: !usesTabsForIndentation
                         ),
-                        context: .init(triggerKind: .automatic)
+                        context: .init(triggerKind: .invoked)
                     )))
                     .items
                     .compactMap { (item: _) -> CodeSuggestion? in

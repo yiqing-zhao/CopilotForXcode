@@ -281,7 +281,7 @@ public struct WidgetFeature {
                 return .run { send in
                     await send(.updateColorScheme)
                     let stream = AsyncStream<Void> { continuation in
-                        userDefaultsObservers.colorSchemeChangeObserver.onChange = {
+                        userDefaultsObservers.xcodeColorSchemeChangeObserver.onChange = {
                             continuation.yield()
                         }
 
@@ -289,8 +289,14 @@ public struct WidgetFeature {
                             continuation.yield()
                         }
 
+                        Task { @MainActor in
+                            Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+                                continuation.yield()
+                            }
+                        }
+
                         continuation.onTermination = { _ in
-                            userDefaultsObservers.colorSchemeChangeObserver.onChange = {}
+                            userDefaultsObservers.xcodeColorSchemeChangeObserver.onChange = {}
                             userDefaultsObservers.systemColorSchemeChangeObserver.onChange = {}
                         }
                     }
@@ -301,17 +307,20 @@ public struct WidgetFeature {
                     }
                 }.cancellable(id: CancelID.observeUserDefaults, cancelInFlight: true)
 
+
             case .updateActiveApplication:
                 return .none
 
             case .updateColorScheme:
-                let widgetColorScheme = UserDefaults.shared.value(for: \.widgetColorScheme)
+                let xcodePref = UserDefaults(suiteName: "com.apple.dt.Xcode")!
+                    .value(forKey: "IDEAppearance") as? Int ?? 0
+                let xcodeColorScheme: XcodeColorScheme = .init(rawValue: xcodePref) ?? .system
                 let systemColorScheme: ColorScheme = NSApp.effectiveAppearance.name == .darkAqua
                     ? .dark
                     : .light
 
                 let scheme: ColorScheme = {
-                    switch (widgetColorScheme, systemColorScheme) {
+                    switch (xcodeColorScheme, systemColorScheme) {
                     case (.system, .dark), (.dark, _):
                         return .dark
                     case (.system, .light), (.light, _):

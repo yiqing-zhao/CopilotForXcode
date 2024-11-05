@@ -160,6 +160,9 @@ public class GitHubCopilotBaseService {
                 currentDirectoryURL: urls.supportURL
             )
 
+            Logger.gitHubCopilot.info("Starting language server in \(urls.supportURL), \(environment)")
+            Logger.gitHubCopilot.info("Running on Xcode \(xcodeVersion), extension version \(versionNumber)")
+
             let localServer = CopilotLocalProcessServer(executionParameters: executionParams)
             localServer.notificationHandler = { _, respond in
                 respond(.timeout)

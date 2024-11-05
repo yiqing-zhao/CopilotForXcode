@@ -25,13 +25,15 @@ public final class WidgetUserDefaultsObservers {
             UserDefaultPreferenceKeys().suggestionPresentationMode.key,
         ], context: nil
     )
-    let colorSchemeChangeObserver = UserDefaultsObserver(
-        object: UserDefaults.shared, forKeyPaths: [
-            UserDefaultPreferenceKeys().widgetColorScheme.key,
-        ], context: nil
+    let xcodeColorSchemeChangeObserver = UserDefaultsObserver(
+        object: UserDefaults(suiteName: "com.apple.dt.Xcode")!,
+        forKeyPaths: ["xcodeColorScheme"],
+        context: nil
     )
     let systemColorSchemeChangeObserver = UserDefaultsObserver(
-        object: UserDefaults.standard, forKeyPaths: ["AppleInterfaceStyle"], context: nil
+        object: UserDefaults.standard,
+        forKeyPaths: ["AppleInterfaceStyle"],
+        context: nil
     )
 
     public init() {}

@@ -5,6 +5,7 @@ import LanguageClient
 import LanguageServerProtocol
 import Logger
 import ProcessEnv
+import Status
 
 /// A clone of the `LocalProcessServer`.
 /// We need it because the original one does not allow us to handle custom notifications.
@@ -279,6 +280,9 @@ extension CustomJSONRPCLanguageServer {
                 return true
             case "statusNotification":
                 Logger.gitHubCopilot.info("\(anyNotification.method): \(debugDescription)")
+                if let payload = GitHubCopilotNotification.StatusNotification.decode(fromParams: anyNotification.params) {
+                    Task { await Status.shared.updateCLSStatus(payload.status.clsStatus, message: payload.message) }
+                }
                 block(nil)
                 return true
             case "featureFlagsNotification":

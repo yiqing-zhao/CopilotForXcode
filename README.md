@@ -21,19 +21,21 @@ Use of the GitHub Copilot Xcode Extension is subject to [GitHub's Pre-Release Te
 
 ## Getting Started
 
-1. Download the `dmg` from
-   [the latest release](https://github.com/github/CopilotForXcode/releases/latest/download/GitHubCopilotForXcode.dmg).
-   Updates can be downloaded and installed by the app.
+1. Install via [Homebrew](https://brew.sh/):
 
-1. Open the `dmg` and drag the `GitHub Copilot for Xcode.app` into the `Applications` folder.
+   ```sh
+   brew install --cask github-copilot-for-xcode
+   ```
+
+   Or download the `dmg` from
+   [the latest release](https://github.com/github/CopilotForXcode/releases/latest/download/GitHubCopilotForXcode.dmg).
+   Drag `GitHub Copilot for Xcode` into the `Applications` folder:
+
    <p align="center">
      <img alt="Screenshot of opened dmg" src="./Docs/dmg-open.png" width="512" />
    </p>
 
-1. On the first opening the application it will warn that it was downloaded from the internet. Click `Open` to proceed.
-   <p align="center">
-     <img alt="Screenshot of downloaded from the internet warning" src="./Docs/downloaded-from-internet.png" width="372" />
-   </p>
+   Updates can be downloaded and installed by the app.
 
 1. A background item will be added to enable Copilot to start when Xcode is opened.
    <p align="center">

@@ -30,7 +30,6 @@ struct PresentInWindowSuggestionPresenter {
         Task { @MainActor in
             let controller = Service.shared.guiController.widgetController
             controller.markAsProcessing(isProcessing)
-            Service.shared.markAsProcessing(isProcessing)
         }
     }
 

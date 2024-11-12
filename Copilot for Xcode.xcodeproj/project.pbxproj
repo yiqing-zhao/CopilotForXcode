@@ -13,7 +13,6 @@
 		3ABBEA2D2C8BA00B00C61D61 /* copilot-language-server in Resources */ = {isa = PBXBuildFile; fileRef = 3ABBEA282C8B9FE100C61D61 /* copilot-language-server */; };
 		424ACA212CA4697200FA20F2 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 424ACA202CA4697200FA20F2 /* Credits.rtf */; };
 		427C63282C6E868B000E557C /* OpenSettingsCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 427C63272C6E868B000E557C /* OpenSettingsCommand.swift */; };
-		42888D512C66B10100DEF835 /* AuthStatusChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42888D502C66B10100DEF835 /* AuthStatusChecker.swift */; };
 		5EC511E32C90CE7400632BAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8189B1D2938973000C9DCDA /* Assets.xcassets */; };
 		5EC511E42C90CE9800632BAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8189B1D2938973000C9DCDA /* Assets.xcassets */; };
 		5EC511E52C90CFD600632BAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C861E6142994F6080056CB02 /* Assets.xcassets */; };
@@ -192,7 +191,6 @@
 		3ABBEA2A2C8BA00300C61D61 /* copilot-language-server-arm64 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = "copilot-language-server-arm64"; path = "Server/node_modules/@github/copilot-language-server/native/darwin-arm64/copilot-language-server-arm64"; sourceTree = SOURCE_ROOT; };
 		424ACA202CA4697200FA20F2 /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		427C63272C6E868B000E557C /* OpenSettingsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSettingsCommand.swift; sourceTree = "<group>"; };
-		42888D502C66B10100DEF835 /* AuthStatusChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStatusChecker.swift; sourceTree = "<group>"; };
 		C8009BFE2941C551007AA7E8 /* ToggleRealtimeSuggestionsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleRealtimeSuggestionsCommand.swift; sourceTree = "<group>"; };
 		C8009C022941C576007AA7E8 /* SyncTextSettingsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTextSettingsCommand.swift; sourceTree = "<group>"; };
 		C800DBB0294C624D00B04CAC /* PrefetchSuggestionsCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefetchSuggestionsCommand.swift; sourceTree = "<group>"; };
@@ -425,7 +423,6 @@
 				C81291D52994FE6900196E12 /* Main.storyboard */,
 				C861E6142994F6080056CB02 /* Assets.xcassets */,
 				C861E6192994F6080056CB02 /* ExtensionService.entitlements */,
-				42888D502C66B10100DEF835 /* AuthStatusChecker.swift */,
 			);
 			path = ExtensionService;
 			sourceTree = "<group>";
@@ -769,7 +766,6 @@
 				C89E75C32A46FB32000DD64F /* AppDelegate+Menu.swift in Sources */,
 				C8738B712BE4F8B700609E7F /* XPCController.swift in Sources */,
 				C861E6202994F63A0056CB02 /* ServiceDelegate.swift in Sources */,
-				42888D512C66B10100DEF835 /* AuthStatusChecker.swift in Sources */,
 				C861E6112994F6070056CB02 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

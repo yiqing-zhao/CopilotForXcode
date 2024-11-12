@@ -1,5 +1,7 @@
+import Foundation
 import GitHubCopilotService
 import ComposableArchitecture
+import Status
 import SwiftUI
 
 struct SignInResponse {
@@ -79,6 +81,7 @@ class GitHubCopilotViewModel: ObservableObject {
             do {
                 let service = try getGitHubCopilotAuthService()
                 status = try await service.signOut()
+                broadcastStatusChange()
             } catch {
                 toast(error.localizedDescription, .error)
             }
@@ -118,6 +121,7 @@ class GitHubCopilotViewModel: ObservableObject {
                 waitingForSignIn = false
                 self.username = username
                 self.status = status
+                broadcastStatusChange()
             } catch let error as GitHubCopilotError {
                 if case .languageServerError(.timeout) = error {
                     // TODO figure out how to extend the default timeout on a Chime LSP request
@@ -130,5 +134,12 @@ class GitHubCopilotViewModel: ObservableObject {
                 toast(error.localizedDescription, .error)
             }
         }
+    }
+
+    func broadcastStatusChange() {
+        DistributedNotificationCenter.default().post(
+            name: .authStatusDidChange,
+            object: nil
+        )
     }
 }

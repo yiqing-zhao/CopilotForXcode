@@ -1,6 +1,7 @@
 import Foundation
 import JSONRPC
 import LanguageServerProtocol
+import Status
 import SuggestionBasic
 
 struct GitHubCopilotDoc: Codable {
@@ -66,7 +67,13 @@ public func editorConfiguration() -> JSONValue {
         if let proxyAuthorization = proxyAuthorization {
             d["proxyAuthorization"] = .string(proxyAuthorization)
         }
-        d["proxyStrictSSL"] = .bool(UserDefaults.shared.value(for: \.gitHubCopilotUseStrictSSL))
+        let proxyStrictSSL = UserDefaults.shared.value(for: \.gitHubCopilotUseStrictSSL)
+        d["proxyStrictSSL"] = .bool(proxyStrictSSL)
+        if proxy.isEmpty && proxyStrictSSL == false {
+            // Setting the proxy to an empty string avoids the lanaguage server
+            // ignoring the proxyStrictSSL setting.
+            d["proxy"] = .string("")
+        }
         return .hash(d)
     }
 
@@ -95,6 +102,7 @@ enum GitHubCopilotRequest {
     struct CheckStatus: GitHubCopilotRequestType {
         struct Response: Codable {
             var status: GitHubCopilotAccountStatus
+            var user: String?
         }
 
         var request: ClientRequest {
@@ -339,3 +347,40 @@ enum GitHubCopilotRequest {
     }
 }
 
+// MARK: Notifications
+
+public enum GitHubCopilotNotification {
+
+    public struct StatusNotification: Codable {
+        public enum StatusKind : String, Codable {
+            case normal = "Normal"
+            case inProgress = "InProgress"
+            case error = "Error"
+            case warning = "Warning"
+            case inactive = "Inactive"
+
+            public var clsStatus: CLSStatus.Status {
+                switch self {
+                case .normal:
+                        .normal
+                case .inProgress:
+                        .inProgress
+                case .error:
+                        .error
+                case .warning:
+                        .warning
+                case .inactive:
+                        .inactive
+                }
+            }
+        }
+
+        public var status: StatusKind
+        public var message: String
+
+        public static func decode(fromParams params: JSONValue?) -> StatusNotification? {
+            try? JSONDecoder().decode(Self.self, from: (try? JSONEncoder().encode(params)) ?? Data())
+        }
+    }
+
+}

@@ -6,6 +6,7 @@ public enum GitHubCopilotAccountStatus: String, Codable, CustomStringConvertible
     case notAuthorized = "NotAuthorized"
     case notSignedIn = "NotSignedIn"
     case ok = "OK"
+    case failedToGetToken = "FailedToGetToken"
 
     public var description: String {
         switch self {
@@ -19,6 +20,8 @@ public enum GitHubCopilotAccountStatus: String, Codable, CustomStringConvertible
             return "Not Signed In"
         case .ok:
             return "OK"
+        case .failedToGetToken:
+            return "Failed to Get Token"
         }
     }
 }

@@ -27,10 +27,6 @@ extension AppDelegate {
         .init("toggleIgnoreLanguageMenuItem")
     }
 
-    fileprivate var copilotStatusMenuItemIdentifier: NSUserInterfaceItemIdentifier {
-        .init("copilotStatusMenuItem")
-    }
-
     @MainActor
     @objc func buildStatusBarMenu() {
         let statusBar = NSStatusBar.system
@@ -52,7 +48,7 @@ extension AppDelegate {
             keyEquivalent: ""
         )
 
-        let openCopilotForXcode = NSMenuItem(
+        let openCopilotForXcodeItem = NSMenuItem(
             title: "Open \(hostAppName) Settings",
             action: #selector(openCopilotForXcode),
             keyEquivalent: ""
@@ -97,12 +93,11 @@ extension AppDelegate {
         )
         toggleIgnoreLanguage.identifier = toggleIgnoreLanguageMenuItemIdentifier;
 
-        let copilotStatus = NSMenuItem(
+        authMenuItem = NSMenuItem(
             title: "Copilot Connection: Checking...",
-            action: nil,
+            action: #selector(openCopilotForXcode),
             keyEquivalent: ""
         )
-        copilotStatus.identifier = copilotStatusMenuItemIdentifier
 
         let openDocs = NSMenuItem(
             title: "View Copilot Documentation...",
@@ -116,13 +111,13 @@ extension AppDelegate {
             keyEquivalent: ""
         )
 
-        statusBarMenu.addItem(openCopilotForXcode)
+        statusBarMenu.addItem(openCopilotForXcodeItem)
         statusBarMenu.addItem(.separator())
         statusBarMenu.addItem(checkForUpdate)
         statusBarMenu.addItem(toggleCompletions)
         statusBarMenu.addItem(toggleIgnoreLanguage)
         statusBarMenu.addItem(.separator())
-        statusBarMenu.addItem(copilotStatus)
+        statusBarMenu.addItem(authMenuItem)
         statusBarMenu.addItem(statusMenuItem)
         statusBarMenu.addItem(.separator())
         statusBarMenu.addItem(openDocs)
@@ -164,14 +159,6 @@ extension AppDelegate: NSMenuDelegate {
                     toggleLanguage.action = nil
                 }
             }
-
-            statusChecker.updateStatusInBackground(notify: { (status: String, isOk: Bool) in
-                if let statusItem = menu.items.first(where: { item in
-                    item.identifier == self.copilotStatusMenuItemIdentifier
-                }) {
-                    statusItem.title = "Copilot Connection: \(isOk ? "Connected" : status)"
-                }
-            })
 
         case xcodeInspectorDebugMenuIdentifier:
             let inspector = XcodeInspector.shared

@@ -7,6 +7,7 @@ import LanguageClient
 import LanguageServerProtocol
 import Logger
 import Preferences
+import Status
 import SuggestionBasic
 
 public protocol GitHubCopilotAuthServiceType {
@@ -281,6 +282,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     private var ongoingTasks = Set<Task<[CodeSuggestion], Error>>()
     private var serverNotificationHandler: ServerNotificationHandler = ServerNotificationHandlerImpl.shared
     private var cancellables = Set<AnyCancellable>()
+    private var statusWatcher: CopilotAuthStatusWatcher?
 
     override init(designatedServer: any GitHubCopilotLSP) {
         super.init(designatedServer: designatedServer)
@@ -291,6 +293,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
         localProcessServer?.notificationPublisher.sink(receiveValue: { [weak self] notification in
             self?.serverNotificationHandler.handleNotification(notification)
         }).store(in: &cancellables)
+        updateStatusInBackground()
     }
 
     @GitHubCopilotSuggestionActor
@@ -309,7 +312,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
 
         func sendRequest(maxTry: Int = 5) async throws -> [CodeSuggestion] {
             do {
-                let completions = try await server
+                let completions = try await self
                     .sendRequest(GitHubCopilotRequest.InlineCompletion(doc: .init(
                         textDocument: .init(uri: fileURL.path, version: 1),
                         position: cursorPosition,
@@ -407,7 +410,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
                                               source: .panel,
                                               workspaceFolder: workspaceFolder)
         do {
-            let _ = try await server.sendRequest(
+            let _ = try await sendRequest(
                 GitHubCopilotRequest.CreateConversation(params: params)
             )
         } catch {
@@ -420,7 +423,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     public func createTurn(_ message: String, workDoneToken: String, conversationId: String, doc: Doc?) async throws {
         do {
             let params = TurnCreateParams(workDoneToken: workDoneToken, conversationId: conversationId, message: message, doc: doc)
-            let _ = try await server.sendRequest(
+            let _ = try await sendRequest(
                 GitHubCopilotRequest.CreateTurn(params: params)
             )
         } catch {
@@ -433,7 +436,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     public func rateConversation(turnId: String, rating: ConversationRating) async throws {
         do {
             let params = ConversationRatingParams(turnId: turnId, rating: rating)
-            let _ = try await server.sendRequest(
+            let _ = try await sendRequest(
                 GitHubCopilotRequest.ConversationRating(params: params)
             )
         } catch {
@@ -445,7 +448,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     public func copyCode(turnId: String, codeBlockIndex: Int, copyType: CopyKind, copiedCharacters: Int, totalCharacters: Int, copiedText: String) async throws {
         let params = CopyCodeParams(turnId: turnId, codeBlockIndex: codeBlockIndex, copyType: copyType, copiedCharacters: copiedCharacters, totalCharacters: totalCharacters, copiedText: copiedText)
         do {
-            let _ = try await server.sendRequest(
+            let _ = try await sendRequest(
                 GitHubCopilotRequest.CopyCode(params: params)
             )
         } catch {
@@ -468,21 +471,21 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
 
     @GitHubCopilotSuggestionActor
     public func notifyShown(_ completion: CodeSuggestion) async {
-        _ = try? await server.sendRequest(
+        _ = try? await sendRequest(
             GitHubCopilotRequest.NotifyShown(completionUUID: completion.id)
         )
     }
 
     @GitHubCopilotSuggestionActor
     public func notifyAccepted(_ completion: CodeSuggestion, acceptedLength: Int? = nil) async {
-        _ = try? await server.sendRequest(
+        _ = try? await sendRequest(
             GitHubCopilotRequest.NotifyAccepted(completionUUID: completion.id, acceptedLength: acceptedLength)
         )
     }
 
     @GitHubCopilotSuggestionActor
     public func notifyRejected(_ completions: [CodeSuggestion]) async {
-        _ = try? await server.sendRequest(
+        _ = try? await sendRequest(
             GitHubCopilotRequest.NotifyRejected(completionUUIDs: completions.map(\.id))
         )
     }
@@ -494,7 +497,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     ) async throws {
         let languageId = languageIdentifierFromFileURL(fileURL)
         let uri = "file://\(fileURL.path)"
-//        Logger.service.debug("Open \(uri), \(content.count)")
+        //        Logger.service.debug("Open \(uri), \(content.count)")
         try await server.sendNotification(
             .didOpenTextDocument(
                 DidOpenTextDocumentParams(
@@ -516,7 +519,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
         version: Int
     ) async throws {
         let uri = "file://\(fileURL.path)"
-//        Logger.service.debug("Change \(uri), \(content.count)")
+        //        Logger.service.debug("Change \(uri), \(content.count)")
         try await server.sendNotification(
             .didChangeTextDocument(
                 DidChangeTextDocumentParams(
@@ -535,14 +538,14 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     @GitHubCopilotSuggestionActor
     public func notifySaveTextDocument(fileURL: URL) async throws {
         let uri = "file://\(fileURL.path)"
-//        Logger.service.debug("Save \(uri)")
+        //        Logger.service.debug("Save \(uri)")
         try await server.sendNotification(.didSaveTextDocument(.init(uri: uri)))
     }
 
     @GitHubCopilotSuggestionActor
     public func notifyCloseTextDocument(fileURL: URL) async throws {
         let uri = "file://\(fileURL.path)"
-//        Logger.service.debug("Close \(uri)")
+        //        Logger.service.debug("Close \(uri)")
         try await server.sendNotification(.didCloseTextDocument(.init(uri: uri)))
     }
 
@@ -554,7 +557,9 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     @GitHubCopilotSuggestionActor
     public func checkStatus() async throws -> GitHubCopilotAccountStatus {
         do {
-            return try await server.sendRequest(GitHubCopilotRequest.CheckStatus()).status
+            let response = try await sendRequest(GitHubCopilotRequest.CheckStatus())
+            await updateServiceAuthStatus(response)
+            return response.status
         } catch let error as ServerError {
             throw GitHubCopilotError.languageServerError(error)
         } catch {
@@ -562,10 +567,38 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
         }
     }
 
+    public func updateStatusInBackground() {
+        Task { @GitHubCopilotSuggestionActor in
+            try? await checkStatus()
+        }
+    }
+
+    private func updateServiceAuthStatus(_ status: GitHubCopilotRequest.CheckStatus.Response) async {
+        Logger.gitHubCopilot.info("check status response: \(status)")
+        if status.status == .ok || status.status == .maybeOk {
+            await Status.shared.updateAuthStatus(.loggedIn, username: status.user)
+            await unwatchAuthStatus()
+        } else {
+            await Status.shared.updateAuthStatus(.notLoggedIn, message: status.status.description)
+            await watchAuthStatus()
+        }
+    }
+
+    @GitHubCopilotSuggestionActor
+    private func watchAuthStatus() {
+        guard statusWatcher == nil else { return }
+        statusWatcher = CopilotAuthStatusWatcher(self)
+    }
+
+    @GitHubCopilotSuggestionActor
+    private func unwatchAuthStatus() {
+        statusWatcher = nil
+    }
+
     @GitHubCopilotSuggestionActor
     public func signInInitiate() async throws -> (verificationUri: String, userCode: String) {
         do {
-            let result = try await server.sendRequest(GitHubCopilotRequest.SignInInitiate())
+            let result = try await sendRequest(GitHubCopilotRequest.SignInInitiate())
             return (result.verificationUri, result.userCode)
         } catch let error as ServerError {
             throw GitHubCopilotError.languageServerError(error)
@@ -576,11 +609,10 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
 
     @GitHubCopilotSuggestionActor
     public func signInConfirm(userCode: String) async throws
-        -> (username: String, status: GitHubCopilotAccountStatus)
+    -> (username: String, status: GitHubCopilotAccountStatus)
     {
         do {
-            let result = try await server
-                .sendRequest(GitHubCopilotRequest.SignInConfirm(userCode: userCode))
+            let result = try await sendRequest(GitHubCopilotRequest.SignInConfirm(userCode: userCode))
             return (result.user, result.status)
         } catch let error as ServerError {
             throw GitHubCopilotError.languageServerError(error)
@@ -592,7 +624,7 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     @GitHubCopilotSuggestionActor
     public func signOut() async throws -> GitHubCopilotAccountStatus {
         do {
-            return try await server.sendRequest(GitHubCopilotRequest.SignOut()).status
+            return try await sendRequest(GitHubCopilotRequest.SignOut()).status
         } catch let error as ServerError {
             throw GitHubCopilotError.languageServerError(error)
         } catch {
@@ -603,10 +635,56 @@ public final class GitHubCopilotService: GitHubCopilotBaseService,
     @GitHubCopilotSuggestionActor
     public func version() async throws -> String {
         do {
-            return try await server.sendRequest(GitHubCopilotRequest.GetVersion()).version
+            return try await sendRequest(GitHubCopilotRequest.GetVersion()).version
         } catch let error as ServerError {
             throw GitHubCopilotError.languageServerError(error)
         } catch {
+            throw error
+        }
+    }
+
+    @GitHubCopilotSuggestionActor
+    public func shutdown() async throws {
+        let stream = AsyncThrowingStream<Void, Error> { continuation in
+            if let localProcessServer {
+                localProcessServer.shutdown() { err in
+                    continuation.finish(throwing: err)
+                }
+            } else {
+                continuation.finish(throwing: GitHubCopilotError.languageServerError(ServerError.serverUnavailable))
+            }
+        }
+        for try await _ in stream {
+            return
+        }
+    }
+
+    @GitHubCopilotSuggestionActor
+    public func exit() async throws {
+        let stream = AsyncThrowingStream<Void, Error> { continuation in
+            if let localProcessServer {
+                localProcessServer.exit() { err in
+                    continuation.finish(throwing: err)
+                }
+            } else {
+                continuation.finish(throwing: GitHubCopilotError.languageServerError(ServerError.serverUnavailable))
+            }
+        }
+        for try await _ in stream {
+            return
+        }
+    }
+
+    private func sendRequest<E: GitHubCopilotRequestType>(_ endpoint: E) async throws -> E.Response {
+        do {
+            return try await server.sendRequest(endpoint)
+        } catch let error as ServerError {
+            if let info = CLSErrorInfo(for: error) {
+                // update the auth status if the error indicates it may have changed, and then rethrow
+                if info.affectsAuthStatus && !(endpoint is GitHubCopilotRequest.CheckStatus) {
+                    updateStatusInBackground()
+                }
+            }
             throw error
         }
     }

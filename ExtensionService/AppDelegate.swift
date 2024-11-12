@@ -32,25 +32,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let service = Service.shared
     var statusBarItem: NSStatusItem!
     var statusMenuItem: NSMenuItem!
+    var authMenuItem: NSMenuItem!
     var xpcController: XPCController?
     let updateChecker =
         UpdateChecker(
             hostBundle: Bundle(url: locateHostBundleURL(url: Bundle.main.bundleURL)),
             checkerDelegate: ExtensionUpdateCheckerDelegate()
         )
-    let statusChecker: AuthStatusChecker = AuthStatusChecker()
     var xpcExtensionService: XPCExtensionService?
     private var cancellables = Set<AnyCancellable>()
     private var progressView: NSProgressIndicator?
-    private var idleIcon = NSImage(named: "MenuBarIcon")
 
     func applicationDidFinishLaunching(_: Notification) {
         if ProcessInfo.processInfo.environment["IS_UNIT_TEST"] == "YES" { return }
         _ = XcodeInspector.shared
-        service.markAsProcessing = { [weak self] in
-            guard let self = self else { return }
-            self.markAsProcessing($0)
-        }
         service.start()
         AXIsProcessTrustedWithOptions([
             kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true,
@@ -63,7 +58,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         buildStatusBarMenu()
         watchServiceStatus()
         watchAXStatus()
-        updateStatusBarItem() // set the initial status
+        watchAuthStatus()
+        setInitialStatusBarStatus()
     }
 
     @objc func quit() {
@@ -183,16 +179,44 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
 
+    func watchAuthStatus() {
+        let notifications = DistributedNotificationCenter.default().notifications(named: .authStatusDidChange)
+        Task { [weak self] in
+            for await _ in notifications {
+                guard let self else { return }
+                await self.forceAuthStatusCheck()
+            }
+        }
+    }
+
+    func setInitialStatusBarStatus() {
+        Task {
+            let authStatus = await Status.shared.getAuthStatus()
+            if authStatus == .unknown {
+                // temporarily kick off a language server instance to prime the initial auth status
+                await forceAuthStatusCheck()
+            }
+            updateStatusBarItem()
+        }
+    }
+
+    func forceAuthStatusCheck() async {
+        do {
+            let service = try GitHubCopilotService()
+            _ = try await service.checkStatus()
+            try await service.shutdown()
+            try await service.exit()
+        } catch {
+            Logger.service.error("Failed to read auth status: \(error)")
+        }
+    }
+
     func updateStatusBarItem() {
         Task { @MainActor in
             let status = await Status.shared.getStatus()
-            let image = if status.system {
-                NSImage(systemSymbolName: status.icon, accessibilityDescription: nil)
-            } else {
-                NSImage(named: status.icon)
-            }
-            idleIcon = image
+            let image = status.icon.nsImage
             self.statusBarItem.button?.image = image
+            self.authMenuItem.title = status.authMessage
             if let message = status.message {
                 // TODO switch to attributedTitle to enable line breaks and color.
                 self.statusMenuItem.title = message
@@ -201,6 +225,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             } else {
                 self.statusMenuItem.isHidden = true
             }
+            self.markAsProcessing(status.inProgress)
         }
     }
 
@@ -209,7 +234,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             // No longer in progress
             progressView?.removeFromSuperview()
             progressView = nil
-            statusBarItem.button?.image = idleIcon
             return
         }
         if progressView != nil {

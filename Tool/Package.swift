@@ -237,6 +237,7 @@ let package = Package(
                 "Terminal",
                 "BuiltinExtension",
                 "ConversationServiceProvider",
+                "Status",
                 .product(name: "LanguageServerProtocol", package: "LanguageServerProtocol"),
                 .product(name: "CopilotForXcodeKit", package: "CopilotForXcodeKit"),
             ]

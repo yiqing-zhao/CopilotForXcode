@@ -48,7 +48,7 @@ public final class UpdateChecker: UpdateCheckerProtocol {
     }
 
     public func getAutomaticallyChecksForUpdates() -> Bool {
-        return updater.automaticallyChecksForUpdates
+        updater.automaticallyChecksForUpdates
     }
 
     public func setAutomaticallyChecksForUpdates(_ value: Bool) {
